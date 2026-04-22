@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>TaylorMade Brand Ambassador Visits</title>
+<style>
+  :root {
+    --tm-black: #000000;
+    --tm-white: #ffffff;
+    --tm-bg: #ffffff;
+    --tm-surface: #ffffff;
+    --tm-card: #ffffff;
+    --tm-border: #e5e5e5;
+    --tm-border-strong: #cfcfcf;
+    --tm-text: #0a0a0a;
+    --tm-text-muted: #6b6b6b;
+    --tm-text-subtle: #9a9a9a;
+    --tm-accent: #000000;
+    --tm-success: #0b8a3e;
+    --tm-success-bg: #e8f6ee;
+    --tm-warning: #b26a00;
+    --tm-warning-bg: #fff4e0;
+    --tm-danger: #b00020;
+    --tm-danger-bg: #fde7ea;
+    --tm-info: #0b5cd6;
+    --tm-info-bg: #e7f0ff;
+    --tm-focus: #000000;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    color: var(--tm-text);
+    background: var(--tm-bg);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--tm-white);
+    border-bottom: 1px solid var(--tm-border);
+    padding: 12px 16px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0));
+    display: flex; align-items: center; gap: 12px;
+  }
+  .topbar-logo { height: 24px; flex-shrink: 0; }
+  .topbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tm-text);
+    flex: 1;
+    line-height: 1.2;
+  }
+  .topbar-title small { display: block; font-size: 10px; font-weight: 500; color: var(--tm-text-muted); letter-spacing: 0.05em; margin-top: 2px; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .net-indicator {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 8px; border-radius: 100px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .net-indicator.online { background: var(--tm-success-bg); color: var(--tm-success); }
+  .net-indicator.offline { background: var(--tm-warning-bg); color: var(--tm-warning); }
+  .net-indicator.notready { background: var(--tm-danger-bg); color: var(--tm-danger); }
+  .net-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ---------- Layout ---------- */
+  .screen { display: none; padding: 16px; max-width: 720px; margin: 0 auto; }
+  .screen.active { display: block; }
+
+  .screen-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--tm-border);
+  }
+  .back-btn {
+    background: transparent; border: 1px solid var(--tm-border);
+    width: 40px; height: 40px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 20px; color: var(--tm-text);
+    flex-shrink: 0;
+  }
+  .back-btn:active { background: #f5f5f5; }
+  .screen-title { font-size: 18px; font-weight: 700; margin: 0; letter-spacing: -0.01em; flex: 1; }
+  .screen-subtitle { font-size: 12px; color: var(--tm-text-muted); margin-top: 2px; }
+
+  /* ---------- Login screen ---------- */
+  .login-wrap {
+    min-height: calc(100vh - 60px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px 20px;
+  }
+  .login-card {
+    width: 100%; max-width: 420px;
+    background: var(--tm-white);
+    border: 1px solid var(--tm-border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    box-shadow: var(--shadow-md);
+  }
+  .login-logo { display: block; margin: 0 auto 20px; width: 220px; max-width: 80%; }
+  .login-heading {
+    text-align: center;
+    font-size: 18px; font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  .login-sub { text-align: center; font-size: 13px; color: var(--tm-text-muted); margin: 0 0 24px; }
+
+  /* ---------- Forms ---------- */
+  .field { margin-bottom: 18px; }
+  .field-label {
+    display: block;
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--tm-text);
+  }
+  .field-label .req { color: var(--tm-danger); margin-left: 2px; }
+  .field-hint { font-size: 11px; color: var(--tm-text-muted); margin-top: 4px; line-height: 1.35; }
+
+  .input, .textarea, .select {
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: 16px; /* 16px prevents iOS zoom on focus */
+    color: var(--tm-text);
+    background: var(--tm-white);
+    border: 1px solid var(--tm-border-strong);
+    border-radius: var(--radius-sm);
+    padding: 11px 12px;
+    outline: none;
+    transition: border-color 0.12s, box-shadow 0.12s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .input:focus, .textarea:focus, .select:focus {
+    border-color: var(--tm-focus);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+  }
+  .textarea { min-height: 88px; resize: vertical; line-height: 1.45; }
+  .select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23000' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .input.invalid, .textarea.invalid, .select.invalid {
+    border-color: var(--tm-danger);
+    background-color: var(--tm-danger-bg);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    font-family: var(--font-sans);
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: var(--radius-sm);
+    padding: 13px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s, background 0.12s, border-color 0.12s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-primary {
+    background: var(--tm-black); color: var(--tm-white); border-color: var(--tm-black);
+  }
+  .btn-secondary {
+    background: var(--tm-white); color: var(--tm-black); border-color: var(--tm-border-strong);
+  }
+  .btn-ghost {
+    background: transparent; color: var(--tm-text); border-color: transparent; padding: 10px 12px;
+  }
+  .btn-danger { background: var(--tm-danger); color: var(--tm-white); border-color: var(--tm-danger); }
+  .btn-block { width: 100%; display: flex; }
+
+  /* ---------- Home screen ---------- */
+  .home-hello {
+    padding: 14px 16px;
+    background: var(--tm-white);
+    border: 1px solid var(--tm-border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .home-hello-text { font-size: 12px; color: var(--tm-text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+  .home-hello-name { font-size: 16px; font-weight: 700; margin-top: 2px; }
+
+  .action-btn {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%;
+    padding: 18px 16px;
+    background: var(--tm-white);
+    border: 1px solid var(--tm-border);
+    border-radius: var(--radius);
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    margin-bottom: 10px;
+    transition: border-color 0.12s, background 0.12s;
+  }
+  .action-btn:active { background: #fafafa; }
+  .action-btn.primary { background: var(--tm-black); color: var(--tm-white); border-color: var(--tm-black); }
+  .action-btn.primary .action-sub { color: rgba(255,255,255,0.7); }
+  .action-icon { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .action-title { font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .action-sub { font-size: 12px; color: var(--tm-text-muted); margin-top: 2px; }
+  .action-badge {
+    margin-left: auto;
+    background: var(--tm-danger); color: white;
+    font-size: 12px; font-weight: 700;
+    min-width: 22px; height: 22px; padding: 0 7px;
+    border-radius: 100px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .action-badge.zero { background: var(--tm-success); }
+
+  /* ---------- Visit list items ---------- */
+  .visit-list { margin-top: 8px; }
+  .visit-item {
+    display: block;
+    background: var(--tm-white);
+    border: 1px solid var(--tm-border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .visit-item:active { background: #fafafa; }
+  .visit-row-1 { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .visit-store { font-weight: 700; font-size: 15px; }
+  .visit-status {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 100px;
+    flex-shrink: 0;
+  }
+  .status-draft { background: #f0f0f0; color: var(--tm-text-muted); }
+  .status-pending { background: var(--tm-warning-bg); color: var(--tm-warning); }
+  .status-synced { background: var(--tm-success-bg); color: var(--tm-success); }
+  .status-error { background: var(--tm-danger-bg); color: var(--tm-danger); }
+  .visit-meta { font-size: 12px; color: var(--tm-text-muted); margin-top: 4px; }
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--tm-text-muted); font-size: 13px;
+  }
+
+  /* ---------- Visit form ---------- */
+  .section {
+    background: var(--tm-white);
+    border: 1px solid var(--tm-border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--tm-text-muted); margin: 0 0 12px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--tm-border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-count { color: var(--tm-text-subtle); font-weight: 600; }
+
+  /* Checkbox pills for multi-select */
+  .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--tm-border-strong);
+    border-radius: 100px;
+    background: var(--tm-white);
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.12s;
+  }
+  .pill input { display: none; }
+  .pill.checked {
+    background: var(--tm-black); color: var(--tm-white); border-color: var(--tm-black);
+  }
+  .pill-group.invalid { outline: 2px solid var(--tm-danger); outline-offset: 4px; border-radius: 6px; }
+
+  /* Rating scale (1-5) */
+  .rating-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--tm-border);
+  }
+  .rating-row:last-child { border-bottom: none; }
+  .rating-label { font-size: 14px; font-weight: 600; flex: 1; }
+  .rating-scale { display: flex; gap: 4px; flex-shrink: 0; }
+  .rating-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--tm-border-strong);
+    background: var(--tm-white);
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tm-text);
+  }
+  .rating-btn.selected {
+    background: var(--tm-black); color: var(--tm-white); border-color: var(--tm-black);
+  }
+  .rating-legend {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--tm-text-subtle);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  /* Segmented single-select */
+  .segmented {
+    display: flex;
+    border: 1px solid var(--tm-border-strong);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .segmented label {
+    flex: 1;
+    text-align: center;
+    padding: 11px 8px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border-right: 1px solid var(--tm-border-strong);
+    background: var(--tm-white);
+    color: var(--tm-text);
+  }
+  .segmented label:last-child { border-right: none; }
+  .segmented input { display: none; }
+  .segmented input:checked + label, .segmented label.checked {
+    background: var(--tm-black); color: var(--tm-white);
+  }
+  .segmented.invalid { outline: 2px solid var(--tm-danger); outline-offset: 2px; }
+
+  /* Autocomplete */
+  .autocomplete-wrap { position: relative; }
+  .autocomplete-list {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: white; border: 1px solid var(--tm-border-strong);
+    border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    max-height: 200px; overflow-y: auto;
+    z-index: 50;
+    box-shadow: var(--shadow-md);
+  }
+  .autocomplete-item { padding: 10px 12px; cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--tm-border); }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:active, .autocomplete-item.hl { background: #f0f0f0; }
+
+  /* Photo grid */
+  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .photo-tile {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--tm-border);
+    background: #f5f5f5 center/cover;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-tile.add {
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    border-style: dashed;
+    cursor: pointer;
+    background: var(--tm-white);
+    color: var(--tm-text-muted);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .photo-tile.add:active { background: #fafafa; }
+  .photo-tile .remove-photo {
+    position: absolute; top: 4px; right: 4px;
+    width: 24px; height: 24px;
+    background: rgba(0,0,0,0.7); color: white;
+    border: none; border-radius: 50%;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .photo-hint { font-size: 11px; color: var(--tm-text-muted); margin-top: 8px; }
+
+  /* Submit bar */
+  .submit-bar {
+    position: sticky; bottom: 0;
+    background: var(--tm-white);
+    border-top: 1px solid var(--tm-border);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+    display: flex; gap: 10px;
+    margin: 16px -16px 0;
+    z-index: 50;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+  }
+  .submit-bar .btn { flex: 1; }
+
+  /* Review/detail view */
+  .review-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--tm-border);
+  }
+  .review-item:last-child { border-bottom: none; }
+  .review-label {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--tm-text-muted); font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .review-value { font-size: 14px; color: var(--tm-text); white-space: pre-wrap; word-break: break-word; }
+  .review-value.muted { color: var(--tm-text-subtle); font-style: italic; }
+  .review-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .review-tag {
+    font-size: 12px; padding: 3px 10px;
+    background: #f0f0f0; border-radius: 100px;
+    color: var(--tm-text);
+  }
+  .review-rating-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; font-size: 13px;
+  }
+  .review-rating-val {
+    font-weight: 700; background: #f0f0f0; padding: 2px 10px; border-radius: 100px;
+  }
+  .review-rating-val.r1, .review-rating-val.r2 { background: var(--tm-danger-bg); color: var(--tm-danger); }
+  .review-rating-val.r3 { background: var(--tm-warning-bg); color: var(--tm-warning); }
+  .review-rating-val.r4, .review-rating-val.r5 { background: var(--tm-success-bg); color: var(--tm-success); }
+
+  /* Toast */
+  .toast-container {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 9999;
+    display: flex; flex-direction: column; gap: 8px;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--tm-black); color: white;
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600;
+    box-shadow: var(--shadow-md);
+    max-width: 90vw;
+    animation: toast-in 0.2s ease-out;
+    pointer-events: auto;
+  }
+  .toast.success { background: var(--tm-success); }
+  .toast.error { background: var(--tm-danger); }
+  .toast.warning { background: var(--tm-warning); }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .shake { animation: shake 0.3s; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.active { display: flex; }
+  .modal {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 400px; width: 100%;
+    box-shadow: var(--shadow-md);
+  }
+  .modal h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; }
+  .modal p { margin: 0 0 20px; font-size: 14px; color: var(--tm-text-muted); }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; }
+
+  /* Sync progress overlay */
+  .sync-overlay {
+    position: fixed; inset: 0;
+    background: rgba(255,255,255,0.95);
+    z-index: 2000; display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .sync-overlay.active { display: flex; }
+  .sync-card {
+    background: white; border: 1px solid var(--tm-border);
+    border-radius: var(--radius); padding: 28px; max-width: 360px; width: 100%;
+    text-align: center; box-shadow: var(--shadow-md);
+  }
+  .sync-spinner {
+    width: 40px; height: 40px; margin: 0 auto 16px;
+    border: 3px solid var(--tm-border);
+    border-top-color: var(--tm-black);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sync-status { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .sync-detail { font-size: 12px; color: var(--tm-text-muted); }
+  .sync-progress-bar {
+    height: 4px; background: #f0f0f0; border-radius: 100px; overflow: hidden; margin-top: 14px;
+  }
+  .sync-progress-fill {
+    height: 100%; background: var(--tm-black); transition: width 0.3s;
+  }
+
+  /* Settings / debug */
+  .settings-block {
+    background: #fafafa; border: 1px solid var(--tm-border);
+    border-radius: var(--radius-sm); padding: 12px;
+    margin-top: 12px; font-size: 12px;
+  }
+  .settings-block code {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 11px; word-break: break-all;
+    background: white; padding: 6px 8px; border-radius: 4px;
+    display: block; margin-top: 4px; border: 1px solid var(--tm-border);
+  }
+
+  /* Utilities */
+  .row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hidden { display: none !important; }
+  .text-muted { color: var(--tm-text-muted); }
+
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar" id="topbar">
+  <img id="topbarLogo" class="topbar-logo" alt="TaylorMade" />
+  <div class="topbar-title">
+    Brand Ambassador Visits
+    <small id="topbarUser"></small>
+  </div>
+  <div class="topbar-actions">
+    <div id="netIndicator" class="net-indicator online"><span class="net-dot"></span><span id="netLabel">Online</span></div>
+  </div>
+</div>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-card">
+      <img id="loginLogo" class="login-logo" alt="TaylorMade" />
+      <h1 class="login-heading">Brand Ambassador Visits</h1>
+      <p class="login-sub">Select your name to get started.</p>
+      <div id="loginSetupWarning" class="hidden" style="background: var(--tm-warning-bg); border: 1px solid var(--tm-warning); color: var(--tm-warning); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; margin-bottom: 16px; line-height: 1.4;">
+        <b>Setup not complete.</b><br/>Webhook not configured yet — visits can be logged offline, but won't sync to SharePoint until <code>CONFIG.WEBHOOK_URL</code> is set.
+      </div>
+      <div class="field">
+        <label class="field-label" for="loginName">Ambassador</label>
+        <select id="loginName" class="select">
+          <option value="">— Select your name —</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="login()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== HOME SCREEN ========== -->
+<div id="screen-home" class="screen">
+  <div class="home-hello">
+    <div>
+      <div class="home-hello-text">Signed in as</div>
+      <div class="home-hello-name" id="helloName">—</div>
+    </div>
+    <button class="btn btn-ghost" onclick="logout()" style="font-size:12px">Sign out</button>
+  </div>
+
+  <button class="action-btn primary" onclick="startNewVisit()">
+    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    <div>
+      <div class="action-title">Start New Visit</div>
+      <div class="action-sub">Log a store visit</div>
+    </div>
+  </button>
+
+  <button class="action-btn" onclick="showScreen('screen-visits')">
+    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
+    <div>
+      <div class="action-title">My Visits</div>
+      <div class="action-sub" id="visitsSub">—</div>
+    </div>
+  </button>
+
+  <button class="action-btn" onclick="syncPendingVisits()" id="syncActionBtn">
+    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-15 6.7L3 16M3 12a9 9 0 0115-6.7L21 8M21 3v5h-5M3 21v-5h5"/></svg>
+    <div>
+      <div class="action-title">Sync to SharePoint</div>
+      <div class="action-sub" id="syncSub">—</div>
+    </div>
+    <span class="action-badge zero" id="syncBadge">0</span>
+  </button>
+
+  <button class="action-btn" onclick="showScreen('screen-settings')">
+    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <div>
+      <div class="action-title">Settings</div>
+      <div class="action-sub">App configuration</div>
+    </div>
+  </button>
+</div>
+
+<!-- ========== VISITS LIST SCREEN ========== -->
+<div id="screen-visits" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('screen-home')">‹</button>
+    <div style="flex:1">
+      <h2 class="screen-title">My Visits</h2>
+      <div class="screen-subtitle" id="visitsListSub">—</div>
+    </div>
+  </div>
+  <div id="visitList" class="visit-list"></div>
+</div>
+
+<!-- ========== VISIT FORM SCREEN ========== -->
+<div id="screen-form" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="cancelForm()">‹</button>
+    <div style="flex:1">
+      <h2 class="screen-title" id="formTitle">New Visit</h2>
+      <div class="screen-subtitle" id="formSubtitle">Auto-saved as you type</div>
+    </div>
+  </div>
+
+  <form id="visitForm" onsubmit="event.preventDefault();">
+    <!-- Section 1: Visit Info -->
+    <div class="section">
+      <h3 class="section-title">Visit Info</h3>
+
+      <div class="field">
+        <label class="field-label" for="f_date">Visit Date <span class="req">*</span></label>
+        <input type="date" id="f_date" class="input" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f_store">Store <span class="req">*</span></label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="f_store" class="input" autocomplete="off" placeholder="e.g. PGA Tour Superstore" />
+          <div id="storeAutocomplete" class="autocomplete-list hidden"></div>
+        </div>
+        <div class="field-hint">Start typing — past entries will suggest below.</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f_location">Store Location / City <span class="req">*</span></label>
+        <input type="text" id="f_location" class="input" placeholder="e.g. Scottsdale, AZ" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f_associates">Associate(s) Spoken To</label>
+        <input type="text" id="f_associates" class="input" placeholder="e.g. Mike (Head Fitter), Sarah" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f_duration">Time in Store <span class="req">*</span></label>
+        <div class="segmented" id="f_duration">
+          <label data-value="<30min">&lt;30 min</label>
+          <label data-value="30-60min">30–60 min</label>
+          <label data-value="1-2hr">1–2 hr</label>
+          <label data-value="2hr+">2 hr+</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Focus Areas -->
+    <div class="section">
+      <h3 class="section-title">Focus Areas <span class="section-count" id="focusCount"></span></h3>
+
+      <div class="field">
+        <label class="field-label">Categories Focused On <span class="req">*</span></label>
+        <div class="pill-group" id="f_categories">
+          <!-- populated by JS -->
+        </div>
+        <div class="field-hint">Select all that apply.</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f_feedback">Product Feedback Received <span class="req">*</span></label>
+        <textarea id="f_feedback" class="textarea" placeholder="What did fitters/associates say about TaylorMade products? Be specific — direct quotes are gold."></textarea>
+      </div>
+    </div>
+
+    <!-- Section 3: Confidence Ratings -->
+    <div class="section">
+      <h3 class="section-title">Fitter & Associate Confidence</h3>
+      <p style="font-size:12px; color:var(--tm-text-muted); margin: 0 0 12px;">Rate how confident the store team feels fitting and educating on each selected category.</p>
+      <div id="confidenceRatings">
+        <div class="empty-state" id="confidenceEmpty">Select categories above to rate confidence.</div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label class="field-label" for="f_gaps">Specific Gaps or Misconceptions</label>
+        <textarea id="f_gaps" class="textarea" placeholder="Any product knowledge gaps, misconceptions about TM tech, or training needs you noticed?"></textarea>
+      </div>
+    </div>
+
+    <!-- Section 4: Product & Fitting Needs -->
+    <div class="section">
+      <h3 class="section-title">Product &amp; Fitting Needs</h3>
+      <div class="field">
+        <label class="field-label" for="f_productNeeds">Product Needs</label>
+        <textarea id="f_productNeeds" class="textarea" placeholder="What's out of stock? What do they want more of?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_fittingNeeds">Fitting Component Needs</label>
+        <textarea id="f_fittingNeeds" class="textarea" placeholder="Shafts, grips, hosel sleeves, demo heads, etc."></textarea>
+      </div>
+    </div>
+
+    <!-- Section 5: Competitive Landscape -->
+    <div class="section">
+      <h3 class="section-title">Competitive Landscape</h3>
+      <div class="field">
+        <label class="field-label">Competitor(s) Making Strongest Impact</label>
+        <div class="pill-group" id="f_competitors"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_competitorWhy">What's Working for Them?</label>
+        <textarea id="f_competitorWhy" class="textarea" placeholder="Why are they winning that battle? Specific products, messaging, POS, in-store placement?"></textarea>
+      </div>
+    </div>
+
+    <!-- Section 6: Brand Presence -->
+    <div class="section">
+      <h3 class="section-title">Brand Presence</h3>
+
+      <div class="field">
+        <label class="field-label">TaylorMade Visual Presence <span class="req">*</span></label>
+        <div class="rating-scale" style="gap:6px; justify-content:space-between;" id="f_tmPresence"></div>
+        <div class="rating-legend"><span>Invisible</span><span>Dominant</span></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f_tmPresenceNotes">Presence Notes</label>
+        <textarea id="f_tmPresenceNotes" class="textarea" placeholder="Where does TM show up? End caps, fitting bays, signage, displays?"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f_competitorPresence">Competitor with Strongest Presence</label>
+        <select id="f_competitorPresence" class="select">
+          <option value="">— Select —</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Who Owns This Store? <span class="req">*</span></label>
+        <div class="segmented" id="f_ownership">
+          <label data-value="TaylorMade">TaylorMade</label>
+          <label data-value="Neck-and-neck">Even</label>
+          <label data-value="Competitor">Competitor</label>
+          <label data-value="Hard to tell">Unclear</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: Action Items -->
+    <div class="section">
+      <h3 class="section-title">Action Items</h3>
+      <div class="field">
+        <label class="field-label" for="f_actions">Action Items / Follow-Ups <span class="req">*</span></label>
+        <textarea id="f_actions" class="textarea" placeholder="What needs to happen next? Who owns it?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Urgency <span class="req">*</span></label>
+        <div class="segmented" id="f_urgency">
+          <label data-value="Low">Low</label>
+          <label data-value="Medium">Medium</label>
+          <label data-value="High">High</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8: Photos -->
+    <div class="section">
+      <h3 class="section-title">Photos <span class="section-count" id="photoCount">0</span></h3>
+      <div class="photo-grid" id="photoGrid">
+        <label class="photo-tile add">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Photo</span>
+          <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event)" />
+        </label>
+      </div>
+      <p class="photo-hint">Photos sync to SharePoint when you hit Sync. Stored offline until then.</p>
+    </div>
+
+    <!-- Submit bar -->
+    <div class="submit-bar">
+      <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save Draft</button>
+      <button type="button" class="btn btn-primary" onclick="submitVisit()">Complete</button>
+    </div>
+  </form>
+</div>
+
+<!-- ========== VISIT DETAIL / REVIEW SCREEN ========== -->
+<div id="screen-review" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('screen-visits')">‹</button>
+    <div style="flex:1">
+      <h2 class="screen-title">Visit Details</h2>
+      <div class="screen-subtitle" id="reviewSubtitle"></div>
+    </div>
+  </div>
+  <div id="reviewContent"></div>
+  <div class="submit-bar" id="reviewActions"></div>
+</div>
+
+<!-- ========== SETTINGS SCREEN ========== -->
+<div id="screen-settings" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('screen-home')">‹</button>
+    <h2 class="screen-title">Settings</h2>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">Connection</h3>
+    <div class="field">
+      <label class="field-label">Webhook Status</label>
+      <div id="webhookStatus" style="font-size:14px; font-weight:600;">—</div>
+    </div>
+    <button class="btn btn-secondary btn-block" onclick="testConnection()" style="margin-top:8px;">Test Connection</button>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">Storage</h3>
+    <div class="field">
+      <div style="display:flex; justify-content:space-between; font-size:14px;"><span>Pending visits</span><b id="statPending">0</b></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; margin-top:6px;"><span>Completed (synced)</span><b id="statSynced">0</b></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; margin-top:6px;"><span>Draft visits</span><b id="statDraft">0</b></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; margin-top:6px;"><span>Photos cached</span><b id="statPhotos">0</b></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">Danger Zone</h3>
+    <button class="btn btn-secondary btn-block" onclick="confirmClearSynced()" style="margin-bottom:8px;">Clear Synced History (local)</button>
+    <p class="field-hint">Local only — SharePoint data is never touched.</p>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- Confirm modal -->
+<div id="confirmModal" class="modal-backdrop">
+  <div class="modal">
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmMessage">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync overlay -->
+<div id="syncOverlay" class="sync-overlay">
+  <div class="sync-card">
+    <div class="sync-spinner"></div>
+    <div class="sync-status" id="syncStatusText">Syncing…</div>
+    <div class="sync-detail" id="syncDetailText">Please keep the app open.</div>
+    <div class="sync-progress-bar"><div class="sync-progress-fill" id="syncProgressFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION
+   ===================================================================== */
+const CONFIG = {
+  // Ambassador roster — edit this list. Names shown in login dropdown.
+  // Alex leads the Brand Ambassador program.
+  AMBASSADORS: [
+    { name: "Alex Quzor", email: "Alex.Quzor@taylormadegolf.com", role: "Lead" },
+    { name: "Ben Tracy", email: "Ben.Tracy@taylormadegolf.com" },
+    { name: "Evan Lammers", email: "Evan.Lammers@taylormadegolf.com" },
+    { name: "Gary Clifton Jr.", email: "Gary.Clifton@taylormadegolf.com" },
+    { name: "Keyanno Reese", email: "Keyanno.Reese@taylormadegolf.com" },
+    { name: "Michael Pham", email: "Michael.Pham@taylormadegolf.com" },
+    { name: "Sean White", email: "Sean.White@taylormadegolf.com" }
+  ],
+
+  CATEGORIES: [
+    "Drivers", "Fairways", "Hybrids", "Irons", "Wedges", "Putters",
+    "Balls", "Bags", "Gloves", "Apparel", "Fitting Bays", "Launch Monitors"
+  ],
+
+  COMPETITORS: [
+    "Callaway", "Titleist", "Ping", "Cobra", "Srixon", "Mizuno",
+    "PXG", "Wilson", "Tour Edge", "Cleveland", "Odyssey",
+    "Scotty Cameron", "L.A.B.", "Bettinardi", "Other"
+  ],
+
+  // Power Automate webhook URL — paste your SAS-authenticated URL here
+  // (same pattern as the patrol app: trigger set to "Anyone", URL includes sp/sv/sig)
+  WEBHOOK_URL: "",
+
+  // SharePoint document library for photos (used server-side by Power Automate)
+  // Stored here as metadata only — the Power Automate flow handles actual uploads.
+  PHOTO_LIBRARY_HINT: "/sites/BrandAmbassadorVisits/Shared Documents/Visit Photos/",
+
+  APP_VERSION: "1.0.0"
+};
+
+// Official TaylorMade OnLight logo (embedded base64 — same asset used in patrol app)
+// Placeholder — user will replace with real logo via Box once integrated
+const TM_LOGO_ONLIGHT = "data:image/svg+xml;base64," + btoa(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 40" width="300" height="40">
+  <text x="0" y="30" font-family="Arial Black, Helvetica, sans-serif" font-size="30" font-weight="900" letter-spacing="-0.5" fill="#000">TaylorMade</text>
+</svg>
+`);
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let state = {
+  currentUser: null,          // { name, email }
+  currentVisit: null,         // in-memory editing visit
+  visits: [],                 // all visits [{id, status, data, photos:[photoId...], createdAt, syncedAt, error}]
+  online: navigator.onLine,
+  lastScreen: "screen-home"
+};
+
+const STORAGE_KEY = "tm_ba_visits_v1";
+const USER_KEY = "tm_ba_user_v1";
+const STORE_HISTORY_KEY = "tm_ba_stores_v1";
+
+/* =====================================================================
+   INDEXEDDB for photos
+   ===================================================================== */
+let dbPromise = null;
+function openDB() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open("tm_ba_photos", 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("photos")) {
+        db.createObjectStore("photos", { keyPath: "id" });
+      }
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e.target.error);
+  });
+  return dbPromise;
+}
+async function savePhoto(id, blob, meta) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("photos", "readwrite");
+    tx.objectStore("photos").put({ id, blob, meta, createdAt: Date.now() });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function getPhoto(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction("photos").objectStore("photos").get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deletePhoto(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("photos", "readwrite");
+    tx.objectStore("photos").delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function countPhotos() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction("photos").objectStore("photos").count();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* =====================================================================
+   STORAGE helpers
+   ===================================================================== */
+function loadVisits() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    state.visits = raw ? JSON.parse(raw) : [];
+  } catch { state.visits = []; }
+}
+function saveVisits() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.visits));
+  } catch (err) {
+    console.error("saveVisits failed:", err);
+  }
+}
+function loadUser() {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function saveUser(u) {
+  try { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+  catch (err) { console.error("saveUser failed:", err); throw err; }
+}
+function clearUser() {
+  try { localStorage.removeItem(USER_KEY); } catch {}
+}
+
+function getStoreHistory() {
+  try { return JSON.parse(localStorage.getItem(STORE_HISTORY_KEY) || "[]"); }
+  catch { return []; }
+}
+function addStoreToHistory(store, location) {
+  if (!store) return;
+  const history = getStoreHistory();
+  const key = store.trim().toLowerCase();
+  const filtered = history.filter(h => h.store.toLowerCase() !== key);
+  filtered.unshift({ store: store.trim(), location: (location || "").trim(), ts: Date.now() });
+  localStorage.setItem(STORE_HISTORY_KEY, JSON.stringify(filtered.slice(0, 50)));
+}
+
+/* =====================================================================
+   UTILITIES
+   ===================================================================== */
+function uid() {
+  return "v_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+}
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function fmtDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+function fmtDateTime(ms) {
+  if (!ms) return "";
+  return new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+  state.lastScreen = id;
+}
+function toast(msg, type = "default", durationMs = 2800) {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = msg;
+  document.getElementById("toastContainer").appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transition = "opacity 0.2s"; }, durationMs);
+  setTimeout(() => el.remove(), durationMs + 250);
+}
+function confirmAction(title, message, onConfirm) {
+  document.getElementById("confirmTitle").textContent = title;
+  document.getElementById("confirmMessage").textContent = message;
+  const btn = document.getElementById("confirmYes");
+  btn.onclick = () => { closeConfirm(); onConfirm(); };
+  document.getElementById("confirmModal").classList.add("active");
+}
+function closeConfirm() { document.getElementById("confirmModal").classList.remove("active"); }
+
+/* =====================================================================
+   LOGIN
+   ===================================================================== */
+function renderLoginRoster() {
+  const sel = document.getElementById("loginName");
+  sel.innerHTML = `<option value="">— Select your name —</option>`;
+  CONFIG.AMBASSADORS.forEach(a => {
+    const opt = document.createElement("option");
+    opt.value = a.email;
+    opt.textContent = a.name;
+    sel.appendChild(opt);
+  });
+}
+function login() {
+  const sel = document.getElementById("loginName");
+  if (!sel) { toast("Login form not loaded — try refreshing", "error"); return; }
+  const email = sel.value;
+  if (!email) { toast("Please select your name", "warning"); return; }
+  const user = CONFIG.AMBASSADORS.find(a => a.email === email);
+  if (!user) { toast("User not found in roster", "error"); return; }
+  try {
+    state.currentUser = user;
+    saveUser(user);
+  } catch (err) {
+    // localStorage might be blocked (e.g. Safari private mode on file://)
+    console.error("Could not save user:", err);
+    state.currentUser = user;
+    toast("Signed in (session only — storage not available)", "warning");
+  }
+  const topUser = document.getElementById("topbarUser");
+  const helloName = document.getElementById("helloName");
+  if (topUser) topUser.textContent = user.name;
+  if (helloName) helloName.textContent = user.name;
+  refreshHome();
+  showScreen("screen-home");
+}
+function logout() {
+  confirmAction("Sign out?", "Pending visits stay on this device until you sign back in.", () => {
+    clearUser();
+    state.currentUser = null;
+    document.getElementById("topbarUser").textContent = "";
+    showScreen("screen-login");
+  });
+}
+
+/* =====================================================================
+   HOME
+   ===================================================================== */
+function refreshHome() {
+  const mine = state.visits.filter(v => v.ambassador === state.currentUser?.email);
+  const draft = mine.filter(v => v.status === "draft").length;
+  const pending = mine.filter(v => v.status === "pending" || v.status === "error").length;
+  const synced = mine.filter(v => v.status === "synced").length;
+
+  document.getElementById("visitsSub").textContent =
+    `${draft} draft · ${pending} pending · ${synced} synced`;
+
+  const badge = document.getElementById("syncBadge");
+  badge.textContent = pending;
+  badge.className = "action-badge" + (pending === 0 ? " zero" : "");
+
+  const syncSub = document.getElementById("syncSub");
+  if (!CONFIG.WEBHOOK_URL) {
+    syncSub.textContent = "Webhook not configured";
+    syncSub.style.color = "var(--tm-danger)";
+  } else {
+    syncSub.style.color = "";
+    syncSub.textContent = pending === 0
+      ? "Everything is up to date"
+      : `${pending} visit${pending === 1 ? "" : "s"} ready to sync`;
+  }
+}
+
+/* =====================================================================
+   VISITS LIST
+   ===================================================================== */
+function renderVisitsList() {
+  const list = document.getElementById("visitList");
+  const mine = state.visits
+    .filter(v => v.ambassador === state.currentUser?.email)
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+  document.getElementById("visitsListSub").textContent =
+    `${mine.length} total · ${mine.filter(v => v.status === "pending" || v.status === "error").length} pending sync`;
+
+  if (mine.length === 0) {
+    list.innerHTML = `<div class="empty-state">No visits yet.<br/>Tap "Start New Visit" to begin.</div>`;
+    return;
+  }
+
+  list.innerHTML = mine.map(v => {
+    const statusLabel = {
+      draft: "Draft",
+      pending: "Pending Sync",
+      synced: "Synced",
+      error: "Sync Failed"
+    }[v.status] || v.status;
+    const store = v.data?.store || "(no store)";
+    const date = v.data?.date ? fmtDate(v.data.date) : "";
+    const when = v.updatedAt ? fmtDateTime(v.updatedAt) : "";
+    return `
+      <div class="visit-item" onclick="openVisit('${v.id}')">
+        <div class="visit-row-1">
+          <div class="visit-store">${escapeHtml(store)}</div>
+          <div class="visit-status status-${v.status}">${statusLabel}</div>
+        </div>
+        <div class="visit-meta">${escapeHtml(date)}${date && when ? " · " : ""}Updated ${when}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function escapeHtml(s) {
+  return String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+/* =====================================================================
+   VISIT FORM — new / edit
+   ===================================================================== */
+function blankVisitData() {
+  return {
+    date: todayISO(),
+    store: "",
+    location: "",
+    associates: "",
+    duration: "",
+    categories: [],
+    feedback: "",
+    confidence: {}, // { "Drivers": 4, "Wedges": 2, ... }
+    gaps: "",
+    productNeeds: "",
+    fittingNeeds: "",
+    competitors: [],
+    competitorWhy: "",
+    tmPresence: null,
+    tmPresenceNotes: "",
+    competitorPresence: "",
+    ownership: "",
+    actions: "",
+    urgency: ""
+  };
+}
+
+function startNewVisit() {
+  state.currentVisit = {
+    id: uid(),
+    ambassador: state.currentUser.email,
+    ambassadorName: state.currentUser.name,
+    status: "draft",
+    data: blankVisitData(),
+    photos: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+  document.getElementById("formTitle").textContent = "New Visit";
+  populateFormFromVisit(state.currentVisit);
+  showScreen("screen-form");
+}
+
+function editVisit(id) {
+  const v = state.visits.find(x => x.id === id);
+  if (!v) return;
+  state.currentVisit = JSON.parse(JSON.stringify(v)); // deep clone so cancel works
+  state.currentVisit.photos = v.photos || []; // photo IDs reference same IndexedDB entries
+  document.getElementById("formTitle").textContent = "Edit Visit";
+  populateFormFromVisit(state.currentVisit);
+  showScreen("screen-form");
+}
+
+async function populateFormFromVisit(v) {
+  const d = v.data;
+  // Section 1
+  document.getElementById("f_date").value = d.date || todayISO();
+  document.getElementById("f_store").value = d.store || "";
+  document.getElementById("f_location").value = d.location || "";
+  document.getElementById("f_associates").value = d.associates || "";
+  setSegmented("f_duration", d.duration);
+
+  // Section 2
+  renderCategoryPills(d.categories || []);
+  document.getElementById("f_feedback").value = d.feedback || "";
+
+  // Section 3
+  renderConfidenceRatings(d.categories || [], d.confidence || {});
+  document.getElementById("f_gaps").value = d.gaps || "";
+
+  // Section 4
+  document.getElementById("f_productNeeds").value = d.productNeeds || "";
+  document.getElementById("f_fittingNeeds").value = d.fittingNeeds || "";
+
+  // Section 5
+  renderCompetitorPills(d.competitors || []);
+  document.getElementById("f_competitorWhy").value = d.competitorWhy || "";
+
+  // Section 6
+  renderPresenceScale(d.tmPresence);
+  document.getElementById("f_tmPresenceNotes").value = d.tmPresenceNotes || "";
+  populateCompetitorSelect(d.competitorPresence);
+  setSegmented("f_ownership", d.ownership);
+
+  // Section 7
+  document.getElementById("f_actions").value = d.actions || "";
+  setSegmented("f_urgency", d.urgency);
+
+  // Section 8 - photos
+  await renderPhotoGrid();
+}
+
+function renderCategoryPills(selected) {
+  const wrap = document.getElementById("f_categories");
+  wrap.innerHTML = CONFIG.CATEGORIES.map(c => {
+    const checked = selected.includes(c);
+    return `<label class="pill ${checked ? "checked" : ""}" data-cat="${escapeHtml(c)}">
+      <input type="checkbox" ${checked ? "checked" : ""} />${escapeHtml(c)}
+    </label>`;
+  }).join("");
+  wrap.querySelectorAll(".pill").forEach(p => {
+    p.addEventListener("click", (e) => {
+      e.preventDefault();
+      const input = p.querySelector("input");
+      input.checked = !input.checked;
+      p.classList.toggle("checked", input.checked);
+      updateCategoriesFromUI();
+      // Re-render confidence ratings since categories changed
+      renderConfidenceRatings(state.currentVisit.data.categories, state.currentVisit.data.confidence);
+      autoSaveDraft();
+    });
+  });
+}
+function updateCategoriesFromUI() {
+  const cats = [...document.querySelectorAll("#f_categories .pill.checked")].map(p => p.dataset.cat);
+  state.currentVisit.data.categories = cats;
+  // Prune confidence ratings for deselected categories
+  const conf = state.currentVisit.data.confidence || {};
+  Object.keys(conf).forEach(k => { if (!cats.includes(k)) delete conf[k]; });
+  state.currentVisit.data.confidence = conf;
+}
+
+function renderCompetitorPills(selected) {
+  const wrap = document.getElementById("f_competitors");
+  wrap.innerHTML = CONFIG.COMPETITORS.map(c => {
+    const checked = selected.includes(c);
+    return `<label class="pill ${checked ? "checked" : ""}" data-comp="${escapeHtml(c)}">
+      <input type="checkbox" ${checked ? "checked" : ""} />${escapeHtml(c)}
+    </label>`;
+  }).join("");
+  wrap.querySelectorAll(".pill").forEach(p => {
+    p.addEventListener("click", (e) => {
+      e.preventDefault();
+      const input = p.querySelector("input");
+      input.checked = !input.checked;
+      p.classList.toggle("checked", input.checked);
+      const comps = [...document.querySelectorAll("#f_competitors .pill.checked")].map(p => p.dataset.comp);
+      state.currentVisit.data.competitors = comps;
+      autoSaveDraft();
+    });
+  });
+}
+
+function populateCompetitorSelect(selected) {
+  const sel = document.getElementById("f_competitorPresence");
+  sel.innerHTML = `<option value="">— Select —</option>` + CONFIG.COMPETITORS.map(c =>
+    `<option value="${escapeHtml(c)}" ${c === selected ? "selected" : ""}>${escapeHtml(c)}</option>`
+  ).join("");
+}
+
+function renderConfidenceRatings(categories, confidence) {
+  const wrap = document.getElementById("confidenceRatings");
+  if (!categories || categories.length === 0) {
+    wrap.innerHTML = `<div class="empty-state" style="padding:20px">Select categories above to rate confidence.</div>`;
+    return;
+  }
+  wrap.innerHTML = categories.map(c => {
+    const current = confidence[c] || 0;
+    return `<div class="rating-row">
+      <div class="rating-label">${escapeHtml(c)}</div>
+      <div class="rating-scale" data-cat="${escapeHtml(c)}">
+        ${[1,2,3,4,5].map(n =>
+          `<button type="button" class="rating-btn ${current === n ? "selected" : ""}" data-val="${n}">${n}</button>`
+        ).join("")}
+      </div>
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll(".rating-scale").forEach(scale => {
+    const cat = scale.dataset.cat;
+    scale.querySelectorAll(".rating-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const val = Number(btn.dataset.val);
+        state.currentVisit.data.confidence[cat] = val;
+        scale.querySelectorAll(".rating-btn").forEach(b => b.classList.toggle("selected", Number(b.dataset.val) === val));
+        autoSaveDraft();
+      });
+    });
+  });
+}
+
+function renderPresenceScale(current) {
+  const wrap = document.getElementById("f_tmPresence");
+  wrap.innerHTML = [1,2,3,4,5].map(n =>
+    `<button type="button" class="rating-btn ${current === n ? "selected" : ""}" data-val="${n}" style="flex:1">${n}</button>`
+  ).join("");
+  wrap.querySelectorAll(".rating-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const val = Number(btn.dataset.val);
+      state.currentVisit.data.tmPresence = val;
+      wrap.querySelectorAll(".rating-btn").forEach(b => b.classList.toggle("selected", Number(b.dataset.val) === val));
+      autoSaveDraft();
+    });
+  });
+}
+
+function setSegmented(wrapId, value) {
+  const wrap = document.getElementById(wrapId);
+  wrap.querySelectorAll("label").forEach(l => {
+    l.classList.toggle("checked", l.dataset.value === value);
+    l.onclick = () => {
+      wrap.querySelectorAll("label").forEach(x => x.classList.remove("checked"));
+      l.classList.add("checked");
+      const field = {
+        f_duration: "duration",
+        f_ownership: "ownership",
+        f_urgency: "urgency"
+      }[wrapId];
+      if (field) state.currentVisit.data[field] = l.dataset.value;
+      autoSaveDraft();
+    };
+  });
+}
+
+/* =====================================================================
+   PHOTO HANDLING
+   ===================================================================== */
+async function handlePhotoUpload(event) {
+  const files = Array.from(event.target.files || []);
+  event.target.value = ""; // reset input so same file can be selected again
+  for (const file of files) {
+    try {
+      // Compress large images
+      const blob = await compressImage(file);
+      const photoId = "p_" + uid();
+      await savePhoto(photoId, blob, { filename: file.name, type: blob.type, size: blob.size });
+      state.currentVisit.photos.push(photoId);
+    } catch (err) {
+      console.error(err);
+      toast("Failed to add photo: " + file.name, "error");
+    }
+  }
+  autoSaveDraft();
+  await renderPhotoGrid();
+}
+
+async function compressImage(file) {
+  // If already small, keep as-is
+  if (file.size < 500 * 1024) return file;
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = () => { img.src = reader.result; };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+    img.onload = () => {
+      const maxDim = 1600;
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        if (blob) resolve(blob);
+        else reject(new Error("Compression failed"));
+      }, "image/jpeg", 0.85);
+    };
+    img.onerror = () => reject(new Error("Image load failed"));
+  });
+}
+
+async function renderPhotoGrid() {
+  const grid = document.getElementById("photoGrid");
+  const photos = state.currentVisit?.photos || [];
+  document.getElementById("photoCount").textContent = photos.length;
+
+  // Build thumbnails
+  const tiles = await Promise.all(photos.map(async (pid) => {
+    const rec = await getPhoto(pid);
+    if (!rec) return "";
+    const url = URL.createObjectURL(rec.blob);
+    return `<div class="photo-tile" style="background-image:url('${url}')">
+      <button type="button" class="remove-photo" onclick="removePhoto('${pid}')" aria-label="Remove">×</button>
+    </div>`;
+  }));
+
+  grid.innerHTML = tiles.join("") + `
+    <label class="photo-tile add">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Add Photo</span>
+      <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event)" />
+    </label>
+  `;
+}
+
+async function removePhoto(photoId) {
+  state.currentVisit.photos = (state.currentVisit.photos || []).filter(p => p !== photoId);
+  await deletePhoto(photoId);
+  autoSaveDraft();
+  await renderPhotoGrid();
+}
+
+/* =====================================================================
+   AUTOCOMPLETE for store
+   ===================================================================== */
+(function setupStoreAutocomplete() {
+  // Listeners attach on DOMContentLoaded
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("f_store");
+    const list = document.getElementById("storeAutocomplete");
+    if (!input) return;
+
+    input.addEventListener("input", () => {
+      if (state.currentVisit) state.currentVisit.data.store = input.value;
+      autoSaveDraft();
+      renderAutocomplete(input.value);
+    });
+    input.addEventListener("focus", () => renderAutocomplete(input.value));
+    input.addEventListener("blur", () => {
+      // Delay so click on list item registers
+      setTimeout(() => list.classList.add("hidden"), 150);
+    });
+
+    function renderAutocomplete(q) {
+      const history = getStoreHistory();
+      const query = (q || "").trim().toLowerCase();
+      const matches = history.filter(h => !query || h.store.toLowerCase().includes(query)).slice(0, 6);
+      if (matches.length === 0) { list.classList.add("hidden"); return; }
+      list.innerHTML = matches.map(m => `
+        <div class="autocomplete-item" data-store="${escapeHtml(m.store)}" data-location="${escapeHtml(m.location)}">
+          <div style="font-weight:600">${escapeHtml(m.store)}</div>
+          ${m.location ? `<div style="font-size:12px; color:#999">${escapeHtml(m.location)}</div>` : ""}
+        </div>
+      `).join("");
+      list.classList.remove("hidden");
+      list.querySelectorAll(".autocomplete-item").forEach(item => {
+        item.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          input.value = item.dataset.store;
+          if (state.currentVisit) state.currentVisit.data.store = item.dataset.store;
+          if (item.dataset.location) {
+            const loc = document.getElementById("f_location");
+            if (loc && !loc.value) {
+              loc.value = item.dataset.location;
+              if (state.currentVisit) state.currentVisit.data.location = item.dataset.location;
+            }
+          }
+          list.classList.add("hidden");
+          autoSaveDraft();
+        });
+      });
+    }
+  });
+})();
+
+/* Hook text field changes for auto-save */
+document.addEventListener("DOMContentLoaded", () => {
+  const fields = ["f_date","f_location","f_associates","f_feedback","f_gaps","f_productNeeds","f_fittingNeeds","f_competitorWhy","f_tmPresenceNotes","f_actions"];
+  const map = {
+    f_date: "date", f_location: "location", f_associates: "associates",
+    f_feedback: "feedback", f_gaps: "gaps", f_productNeeds: "productNeeds",
+    f_fittingNeeds: "fittingNeeds", f_competitorWhy: "competitorWhy",
+    f_tmPresenceNotes: "tmPresenceNotes", f_actions: "actions"
+  };
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) { console.warn("Missing field element:", id); return; }
+    el.addEventListener("input", (e) => {
+      if (!state.currentVisit) return;
+      state.currentVisit.data[map[id]] = e.target.value;
+      autoSaveDraft();
+    });
+  });
+  const compSel = document.getElementById("f_competitorPresence");
+  if (compSel) {
+    compSel.addEventListener("change", (e) => {
+      if (!state.currentVisit) return;
+      state.currentVisit.data.competitorPresence = e.target.value;
+      autoSaveDraft();
+    });
+  }
+});
+
+/* =====================================================================
+   SAVE / SUBMIT
+   ===================================================================== */
+let autoSaveTimeout = null;
+function autoSaveDraft() {
+  if (!state.currentVisit) return;
+  clearTimeout(autoSaveTimeout);
+  autoSaveTimeout = setTimeout(() => {
+    state.currentVisit.updatedAt = Date.now();
+    state.currentVisit.status = state.currentVisit.status === "synced" ? "synced" : (state.currentVisit.status === "pending" || state.currentVisit.status === "error" ? state.currentVisit.status : "draft");
+    upsertVisit(state.currentVisit);
+    document.getElementById("formSubtitle").textContent = "Auto-saved " + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+  }, 300);
+}
+
+function upsertVisit(v) {
+  const i = state.visits.findIndex(x => x.id === v.id);
+  if (i >= 0) state.visits[i] = v;
+  else state.visits.push(v);
+  saveVisits();
+}
+
+function saveDraft() {
+  if (!state.currentVisit) return;
+  state.currentVisit.updatedAt = Date.now();
+  if (state.currentVisit.status !== "synced") state.currentVisit.status = "draft";
+  upsertVisit(state.currentVisit);
+  if (state.currentVisit.data.store) addStoreToHistory(state.currentVisit.data.store, state.currentVisit.data.location);
+  refreshHome();
+  toast("Draft saved", "success");
+  showScreen("screen-home");
+}
+
+function validateVisit(d) {
+  const errors = {};
+  if (!d.date) errors.f_date = true;
+  if (!d.store || !d.store.trim()) errors.f_store = true;
+  if (!d.location || !d.location.trim()) errors.f_location = true;
+  if (!d.duration) errors.f_duration = true;
+  if (!d.categories || d.categories.length === 0) errors.f_categories = true;
+  if (!d.feedback || !d.feedback.trim()) errors.f_feedback = true;
+  if (!d.tmPresence) errors.f_tmPresence = true;
+  if (!d.ownership) errors.f_ownership = true;
+  if (!d.actions || !d.actions.trim()) errors.f_actions = true;
+  if (!d.urgency) errors.f_urgency = true;
+  return errors;
+}
+
+function applyValidationErrors(errors) {
+  // Clear all first
+  document.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid", "shake"));
+  Object.keys(errors).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add("invalid", "shake");
+      setTimeout(() => el.classList.remove("shake"), 400);
+    }
+  });
+  // Scroll to first error
+  const firstId = Object.keys(errors)[0];
+  const firstEl = document.getElementById(firstId);
+  if (firstEl) firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function submitVisit() {
+  if (!state.currentVisit) return;
+  const errors = validateVisit(state.currentVisit.data);
+  if (Object.keys(errors).length > 0) {
+    applyValidationErrors(errors);
+    toast("Please fill in all required fields", "warning");
+    return;
+  }
+  state.currentVisit.status = "pending";
+  state.currentVisit.updatedAt = Date.now();
+  state.currentVisit.completedAt = Date.now();
+  upsertVisit(state.currentVisit);
+  if (state.currentVisit.data.store) addStoreToHistory(state.currentVisit.data.store, state.currentVisit.data.location);
+  refreshHome();
+  toast("Visit complete — ready to sync", "success");
+  showScreen("screen-home");
+  // Auto-sync if online and webhook configured
+  if (state.online && CONFIG.WEBHOOK_URL) {
+    setTimeout(() => syncPendingVisits(), 800);
+  }
+}
+
+function cancelForm() {
+  // If the form is a fresh unsaved visit, offer to discard
+  if (!state.currentVisit) { showScreen("screen-home"); return; }
+  const existing = state.visits.find(v => v.id === state.currentVisit.id);
+  if (!existing && !hasAnyData(state.currentVisit.data)) {
+    state.currentVisit = null;
+    showScreen("screen-home");
+    return;
+  }
+  // Otherwise just go back — draft is auto-saved
+  showScreen("screen-home");
+}
+function hasAnyData(d) {
+  if (!d) return false;
+  return (d.store || d.location || d.feedback || d.actions || (d.categories && d.categories.length));
+}
+
+/* =====================================================================
+   REVIEW / DETAIL VIEW
+   ===================================================================== */
+async function openVisit(id) {
+  const v = state.visits.find(x => x.id === id);
+  if (!v) return;
+  state.currentVisit = v; // reference, not clone — so photos render from same IDs
+  if (v.status === "draft" || v.status === "error") {
+    // Draft or failed — open in edit mode
+    editVisit(id);
+    return;
+  }
+  // Synced or pending — show read-only review
+  await renderReview(v);
+  showScreen("screen-review");
+}
+
+async function renderReview(v) {
+  const d = v.data || {};
+  document.getElementById("reviewSubtitle").textContent =
+    `${d.store || "(no store)"} · ${fmtDate(d.date)} · ${v.status}`;
+
+  const photoTiles = await Promise.all((v.photos || []).map(async pid => {
+    const rec = await getPhoto(pid);
+    if (!rec) return `<div class="photo-tile" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">missing</div>`;
+    const url = URL.createObjectURL(rec.blob);
+    return `<div class="photo-tile" style="background-image:url('${url}')"></div>`;
+  }));
+
+  const content = document.getElementById("reviewContent");
+  content.innerHTML = `
+    <div class="section">
+      <h3 class="section-title">Visit Info</h3>
+      ${reviewItem("Ambassador", v.ambassadorName)}
+      ${reviewItem("Date", fmtDate(d.date))}
+      ${reviewItem("Store", d.store)}
+      ${reviewItem("Location", d.location)}
+      ${reviewItem("Associates", d.associates)}
+      ${reviewItem("Time in Store", d.duration)}
+    </div>
+    <div class="section">
+      <h3 class="section-title">Focus Areas</h3>
+      ${reviewTags("Categories", d.categories)}
+      ${reviewItem("Product Feedback", d.feedback)}
+    </div>
+    <div class="section">
+      <h3 class="section-title">Confidence Ratings</h3>
+      ${Object.keys(d.confidence || {}).length === 0
+        ? `<div class="review-value muted">No ratings recorded</div>`
+        : Object.entries(d.confidence).map(([cat, val]) => `
+            <div class="review-rating-row">
+              <span>${escapeHtml(cat)}</span>
+              <span class="review-rating-val r${val}">${val} / 5</span>
+            </div>`).join("")}
+      ${reviewItem("Gaps / Misconceptions", d.gaps)}
+    </div>
+    <div class="section">
+      <h3 class="section-title">Product &amp; Fitting Needs</h3>
+      ${reviewItem("Product Needs", d.productNeeds)}
+      ${reviewItem("Fitting Component Needs", d.fittingNeeds)}
+    </div>
+    <div class="section">
+      <h3 class="section-title">Competitive Landscape</h3>
+      ${reviewTags("Competitors", d.competitors)}
+      ${reviewItem("What's Working For Them", d.competitorWhy)}
+    </div>
+    <div class="section">
+      <h3 class="section-title">Brand Presence</h3>
+      <div class="review-rating-row">
+        <span>TaylorMade Presence</span>
+        <span class="review-rating-val r${d.tmPresence || 0}">${d.tmPresence ? d.tmPresence + " / 5" : "—"}</span>
+      </div>
+      ${reviewItem("Presence Notes", d.tmPresenceNotes)}
+      ${reviewItem("Competitor with Strongest Presence", d.competitorPresence)}
+      ${reviewItem("Who Owns This Store?", d.ownership)}
+    </div>
+    <div class="section">
+      <h3 class="section-title">Action Items</h3>
+      ${reviewItem("Action Items", d.actions)}
+      ${reviewItem("Urgency", d.urgency)}
+    </div>
+    ${(v.photos && v.photos.length) ? `
+      <div class="section">
+        <h3 class="section-title">Photos (${v.photos.length})</h3>
+        <div class="photo-grid">${photoTiles.join("")}</div>
+      </div>` : ""}
+    ${v.error ? `
+      <div class="section" style="background: var(--tm-danger-bg); border-color: var(--tm-danger);">
+        <h3 class="section-title" style="color: var(--tm-danger)">Sync Error</h3>
+        <div class="review-value">${escapeHtml(v.error)}</div>
+      </div>` : ""}
+  `;
+
+  const actions = document.getElementById("reviewActions");
+  if (v.status === "pending" || v.status === "error") {
+    actions.innerHTML = `
+      <button type="button" class="btn btn-secondary" onclick="editVisit('${v.id}')">Edit</button>
+      <button type="button" class="btn btn-primary" onclick="syncPendingVisits()">Sync Now</button>
+    `;
+  } else if (v.status === "synced") {
+    actions.innerHTML = `
+      <button type="button" class="btn btn-secondary" onclick="confirmDeleteLocal('${v.id}')">Remove From Device</button>
+    `;
+  } else {
+    actions.innerHTML = `<button type="button" class="btn btn-primary" onclick="editVisit('${v.id}')">Continue Editing</button>`;
+  }
+}
+
+function reviewItem(label, value) {
+  const v = (value == null || value === "") ? null : String(value);
+  return `<div class="review-item">
+    <div class="review-label">${escapeHtml(label)}</div>
+    <div class="review-value ${v ? "" : "muted"}">${v ? escapeHtml(v) : "Not provided"}</div>
+  </div>`;
+}
+function reviewTags(label, arr) {
+  if (!arr || arr.length === 0) {
+    return `<div class="review-item">
+      <div class="review-label">${escapeHtml(label)}</div>
+      <div class="review-value muted">None selected</div>
+    </div>`;
+  }
+  return `<div class="review-item">
+    <div class="review-label">${escapeHtml(label)}</div>
+    <div class="review-tags">${arr.map(t => `<span class="review-tag">${escapeHtml(t)}</span>`).join("")}</div>
+  </div>`;
+}
+
+function confirmDeleteLocal(id) {
+  confirmAction("Remove from device?", "This only deletes the local copy — the SharePoint record is untouched.", async () => {
+    const v = state.visits.find(x => x.id === id);
+    if (v) {
+      for (const pid of (v.photos || [])) await deletePhoto(pid);
+    }
+    state.visits = state.visits.filter(x => x.id !== id);
+    saveVisits();
+    refreshHome();
+    showScreen("screen-visits");
+    renderVisitsList();
+    toast("Removed from device", "success");
+  });
+}
+
+/* =====================================================================
+   SYNC to SharePoint via Power Automate webhook
+   ===================================================================== */
+async function syncPendingVisits() {
+  if (!CONFIG.WEBHOOK_URL) {
+    toast("Webhook not configured — set CONFIG.WEBHOOK_URL", "error");
+    return;
+  }
+  if (!state.online) {
+    toast("You're offline — sync will run when you reconnect", "warning");
+    return;
+  }
+  const pending = state.visits.filter(v =>
+    v.ambassador === state.currentUser.email && (v.status === "pending" || v.status === "error")
+  );
+  if (pending.length === 0) {
+    toast("Nothing to sync", "success");
+    return;
+  }
+
+  const overlay = document.getElementById("syncOverlay");
+  const statusEl = document.getElementById("syncStatusText");
+  const detailEl = document.getElementById("syncDetailText");
+  const fillEl = document.getElementById("syncProgressFill");
+  overlay.classList.add("active");
+
+  let success = 0, failed = 0;
+  for (let i = 0; i < pending.length; i++) {
+    const v = pending[i];
+    statusEl.textContent = `Syncing ${i + 1} of ${pending.length}`;
+    detailEl.textContent = v.data.store || "Visit";
+    fillEl.style.width = `${(i / pending.length) * 100}%`;
+    try {
+      await syncOne(v);
+      v.status = "synced";
+      v.syncedAt = Date.now();
+      v.error = null;
+      success++;
+    } catch (err) {
+      console.error("Sync failed for", v.id, err);
+      v.status = "error";
+      v.error = err?.message || String(err);
+      failed++;
+    }
+    upsertVisit(v);
+  }
+  fillEl.style.width = "100%";
+  setTimeout(() => {
+    overlay.classList.remove("active");
+    if (failed === 0) toast(`Synced ${success} visit${success === 1 ? "" : "s"}`, "success");
+    else toast(`${success} synced · ${failed} failed`, failed > 0 ? "error" : "success");
+    refreshHome();
+    if (state.lastScreen === "screen-visits") renderVisitsList();
+  }, 400);
+}
+
+async function syncOne(v) {
+  // Gather photos as base64
+  const photoPayload = [];
+  for (const pid of (v.photos || [])) {
+    const rec = await getPhoto(pid);
+    if (!rec) continue;
+    const b64 = await blobToBase64(rec.blob);
+    photoPayload.push({
+      filename: `${v.id}_${photoPayload.length + 1}.jpg`,
+      contentType: rec.blob.type || "image/jpeg",
+      sizeBytes: rec.blob.size,
+      data: b64 // base64 string without data URL prefix
+    });
+  }
+
+  const payload = {
+    schemaVersion: 1,
+    visitId: v.id,
+    ambassadorEmail: v.ambassador,
+    ambassadorName: v.ambassadorName,
+    submittedAt: new Date(v.completedAt || v.updatedAt || Date.now()).toISOString(),
+    visit: {
+      date: v.data.date,
+      store: v.data.store,
+      location: v.data.location,
+      associates: v.data.associates,
+      duration: v.data.duration,
+      categories: v.data.categories,
+      categoriesString: (v.data.categories || []).join(", "),
+      feedback: v.data.feedback,
+      confidence: v.data.confidence,
+      confidenceString: Object.entries(v.data.confidence || {}).map(([k,v2]) => `${k}: ${v2}/5`).join(" | "),
+      gaps: v.data.gaps,
+      productNeeds: v.data.productNeeds,
+      fittingNeeds: v.data.fittingNeeds,
+      competitors: v.data.competitors,
+      competitorsString: (v.data.competitors || []).join(", "),
+      competitorWhy: v.data.competitorWhy,
+      tmPresence: v.data.tmPresence,
+      tmPresenceNotes: v.data.tmPresenceNotes,
+      competitorPresence: v.data.competitorPresence,
+      ownership: v.data.ownership,
+      actions: v.data.actions,
+      urgency: v.data.urgency
+    },
+    photos: photoPayload,
+    photoCount: photoPayload.length,
+    appVersion: CONFIG.APP_VERSION
+  };
+
+  const resp = await fetch(CONFIG.WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    throw new Error(`HTTP ${resp.status} ${resp.statusText}${text ? " — " + text.slice(0, 200) : ""}`);
+  }
+  return resp;
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const s = reader.result;
+      const idx = s.indexOf(",");
+      resolve(idx >= 0 ? s.slice(idx + 1) : s);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
+/* =====================================================================
+   SETTINGS
+   ===================================================================== */
+async function refreshSettings() {
+  const mine = state.visits.filter(v => v.ambassador === state.currentUser?.email);
+  document.getElementById("statPending").textContent = mine.filter(v => v.status === "pending" || v.status === "error").length;
+  document.getElementById("statSynced").textContent = mine.filter(v => v.status === "synced").length;
+  document.getElementById("statDraft").textContent = mine.filter(v => v.status === "draft").length;
+  try { document.getElementById("statPhotos").textContent = await countPhotos(); } catch { document.getElementById("statPhotos").textContent = "?"; }
+  document.getElementById("webhookStatus").textContent = CONFIG.WEBHOOK_URL
+    ? (state.online ? "Configured · Online" : "Configured · Offline")
+    : "NOT CONFIGURED (edit CONFIG.WEBHOOK_URL in source)";
+  document.getElementById("webhookStatus").style.color = CONFIG.WEBHOOK_URL ? (state.online ? "var(--tm-success)" : "var(--tm-warning)") : "var(--tm-danger)";
+}
+
+async function testConnection() {
+  if (!CONFIG.WEBHOOK_URL) { toast("No webhook configured", "error"); return; }
+  if (!state.online) { toast("You're offline", "warning"); return; }
+  toast("Testing…");
+  try {
+    const resp = await fetch(CONFIG.WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ test: true, schemaVersion: 1, at: new Date().toISOString() })
+    });
+    if (resp.ok) toast("Connection OK", "success");
+    else toast(`HTTP ${resp.status}`, "error");
+  } catch (err) {
+    toast("Connection failed: " + err.message, "error");
+  }
+}
+
+function confirmClearSynced() {
+  confirmAction("Clear synced history?", "Deletes all synced visits and their photos from this device. SharePoint data is not touched.", async () => {
+    const before = state.visits.length;
+    const syncedIds = state.visits.filter(v => v.ambassador === state.currentUser?.email && v.status === "synced").map(v => v.id);
+    for (const id of syncedIds) {
+      const v = state.visits.find(x => x.id === id);
+      if (v) for (const pid of (v.photos || [])) await deletePhoto(pid);
+    }
+    state.visits = state.visits.filter(v => !syncedIds.includes(v.id));
+    saveVisits();
+    refreshHome();
+    refreshSettings();
+    toast(`Cleared ${before - state.visits.length} visit(s)`, "success");
+  });
+}
+
+/* =====================================================================
+   NETWORK STATUS
+   ===================================================================== */
+function updateNetStatus() {
+  state.online = navigator.onLine;
+  const el = document.getElementById("netIndicator");
+  const labelEl = document.getElementById("netLabel");
+
+  // Three states: Not Connected (no webhook), Offline (no network), Online (both)
+  if (!CONFIG.WEBHOOK_URL) {
+    el.className = "net-indicator notready";
+    labelEl.textContent = "Not Connected";
+  } else if (!state.online) {
+    el.className = "net-indicator offline";
+    labelEl.textContent = "Offline";
+  } else {
+    el.className = "net-indicator online";
+    labelEl.textContent = "Online";
+  }
+
+  refreshSettings();
+  // Auto-sync when we come back online (only if webhook is configured)
+  if (state.online && state.currentUser && CONFIG.WEBHOOK_URL) {
+    const hasPending = state.visits.some(v => v.ambassador === state.currentUser.email && (v.status === "pending" || v.status === "error"));
+    if (hasPending) {
+      toast("Back online — syncing pending visits…");
+      setTimeout(syncPendingVisits, 800);
+    }
+  }
+}
+window.addEventListener("online", updateNetStatus);
+window.addEventListener("offline", updateNetStatus);
+
+/* =====================================================================
+   SCREEN ROUTER
+   ===================================================================== */
+const _showScreen = showScreen;
+showScreen = function(id) {
+  _showScreen(id);
+  if (id === "screen-visits") renderVisitsList();
+  if (id === "screen-home") refreshHome();
+  if (id === "screen-settings") refreshSettings();
+};
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+function boot() {
+  try {
+    // Logos
+    document.getElementById("topbarLogo").src = TM_LOGO_ONLIGHT;
+    document.getElementById("loginLogo").src = TM_LOGO_ONLIGHT;
+
+    loadVisits();
+    renderLoginRoster();
+
+    // Show setup warning if webhook isn't configured
+    if (!CONFIG.WEBHOOK_URL) {
+      const w = document.getElementById("loginSetupWarning");
+      if (w) w.classList.remove("hidden");
+    }
+
+    updateNetStatus();
+
+    const u = loadUser();
+    if (u && CONFIG.AMBASSADORS.find(a => a.email === u.email)) {
+      state.currentUser = u;
+      document.getElementById("topbarUser").textContent = u.name;
+      document.getElementById("helloName").textContent = u.name;
+      refreshHome();
+      showScreen("screen-home");
+    } else {
+      showScreen("screen-login");
+    }
+  } catch (err) {
+    // Absolute last-resort fallback — if anything explodes, at least show the login screen
+    console.error("Boot error:", err);
+    try {
+      renderLoginRoster();
+      const warn = document.getElementById("loginSetupWarning");
+      if (warn) {
+        warn.classList.remove("hidden");
+        warn.innerHTML = "<b>Startup warning:</b><br/>" + (err.message || "Unknown error") + "<br/>App may have limited functionality. Try a different browser if issues persist.";
+      }
+    } catch {}
+  }
+}
+
+// Run boot as soon as DOM is available — handles file:// quirks where
+// DOMContentLoaded may have already fired by the time we get here.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  // DOM already parsed — run now
+  setTimeout(boot, 0);
+}
+</script>
+</body>
+</html>
