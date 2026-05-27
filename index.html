@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#ffffff" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<title>TaylorMade Brand Ambassador Visits</title>
+<title>TaylorMade Brand Ambassador Field Reports</title>
 <style>
   :root {
     --tm-black: #000000;
@@ -78,6 +78,7 @@
   .net-indicator.online { background: var(--tm-success-bg); color: var(--tm-success); }
   .net-indicator.offline { background: var(--tm-warning-bg); color: var(--tm-warning); }
   .net-indicator.notready { background: var(--tm-danger-bg); color: var(--tm-danger); }
+  .net-indicator.partial { background: var(--tm-warning-bg); color: var(--tm-warning); }
   .net-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
   /* ---------- Layout ---------- */
@@ -139,7 +140,7 @@
   .input, .textarea, .select {
     width: 100%;
     font-family: var(--font-sans);
-    font-size: 16px; /* 16px prevents iOS zoom on focus */
+    font-size: 16px;
     color: var(--tm-text);
     background: var(--tm-white);
     border: 1px solid var(--tm-border-strong);
@@ -207,6 +208,11 @@
   .home-hello-text { font-size: 12px; color: var(--tm-text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
   .home-hello-name { font-size: 16px; font-weight: 700; margin-top: 2px; }
 
+  .home-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--tm-text-muted); margin: 18px 0 8px 4px;
+  }
+
   .action-btn {
     display: flex; align-items: center; gap: 14px;
     width: 100%;
@@ -249,7 +255,15 @@
   }
   .visit-item:active { background: #fafafa; }
   .visit-row-1 { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .visit-store { font-weight: 700; font-size: 15px; }
+  .visit-store { font-weight: 700; font-size: 15px; flex: 1; }
+  .visit-type-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 100px;
+    background: #f0f0f0; color: var(--tm-text-muted);
+    flex-shrink: 0;
+  }
+  .visit-type-badge.store { background: var(--tm-info-bg); color: var(--tm-info); }
+  .visit-type-badge.weekly { background: #f3eaff; color: #6a1fb8; }
   .visit-status {
     font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
     padding: 3px 8px; border-radius: 100px;
@@ -259,11 +273,26 @@
   .status-pending { background: var(--tm-warning-bg); color: var(--tm-warning); }
   .status-synced { background: var(--tm-success-bg); color: var(--tm-success); }
   .status-error { background: var(--tm-danger-bg); color: var(--tm-danger); }
-  .visit-meta { font-size: 12px; color: var(--tm-text-muted); margin-top: 4px; }
+  .visit-meta { font-size: 12px; color: var(--tm-text-muted); margin-top: 4px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .empty-state {
     text-align: center; padding: 40px 20px;
     color: var(--tm-text-muted); font-size: 13px;
   }
+
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex; gap: 6px; margin-bottom: 14px;
+    background: #f5f5f5; padding: 4px;
+    border-radius: var(--radius-sm);
+  }
+  .filter-tab {
+    flex: 1; padding: 8px;
+    text-align: center; font-size: 12px; font-weight: 600;
+    border: none; background: transparent;
+    border-radius: var(--radius-sm); cursor: pointer;
+    color: var(--tm-text-muted);
+  }
+  .filter-tab.active { background: var(--tm-white); color: var(--tm-text); box-shadow: var(--shadow-sm); }
 
   /* ---------- Visit form ---------- */
   .section {
@@ -280,6 +309,15 @@
     display: flex; justify-content: space-between; align-items: center;
   }
   .section-count { color: var(--tm-text-subtle); font-weight: 600; }
+
+  /* Type indicator inside form */
+  .form-type-indicator {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 100px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .form-type-indicator.store { background: var(--tm-info-bg); color: var(--tm-info); }
+  .form-type-indicator.weekly { background: #f3eaff; color: #6a1fb8; }
 
   /* Checkbox pills for multi-select */
   .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -367,36 +405,86 @@
   .autocomplete-item:last-child { border-bottom: none; }
   .autocomplete-item:active, .autocomplete-item.hl { background: #f0f0f0; }
 
-  /* Photo grid */
-  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-  .photo-tile {
-    aspect-ratio: 1;
+  /* Stores-visited mini-form (weekly report) */
+  .store-entry {
+    display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px;
+    margin-bottom: 8px; align-items: start;
+  }
+  .store-entry .input { font-size: 14px; padding: 9px 10px; }
+  .store-remove {
+    width: 38px; height: 38px;
+    border: 1px solid var(--tm-border-strong);
+    background: var(--tm-white);
     border-radius: var(--radius-sm);
+    cursor: pointer; color: var(--tm-danger);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+  }
+  .store-remove:active { background: var(--tm-danger-bg); }
+  .add-store-btn {
+    border: 1px dashed var(--tm-border-strong);
+    background: var(--tm-white);
+    width: 100%; padding: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600;
+    color: var(--tm-text-muted); cursor: pointer;
+    margin-top: 4px;
+  }
+  .add-store-btn:active { background: #fafafa; }
+
+  /* Photo grid + captions */
+  .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+  .photo-card {
     border: 1px solid var(--tm-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--tm-white);
+    display: flex; flex-direction: column;
+  }
+  .photo-card .photo-thumb {
+    aspect-ratio: 4 / 3;
     background: #f5f5f5 center/cover;
     position: relative;
-    overflow: hidden;
   }
-  .photo-tile.add {
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column;
-    border-style: dashed;
-    cursor: pointer;
-    background: var(--tm-white);
-    color: var(--tm-text-muted);
-    font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
-  }
-  .photo-tile.add:active { background: #fafafa; }
-  .photo-tile .remove-photo {
-    position: absolute; top: 4px; right: 4px;
-    width: 24px; height: 24px;
+  .photo-card .photo-thumb .remove-photo {
+    position: absolute; top: 6px; right: 6px;
+    width: 28px; height: 28px;
     background: rgba(0,0,0,0.7); color: white;
     border: none; border-radius: 50%;
-    font-size: 14px; font-weight: 700;
+    font-size: 16px; font-weight: 700;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     line-height: 1;
   }
+  .photo-card .caption-input {
+    width: 100%;
+    border: none; border-top: 1px solid var(--tm-border);
+    padding: 8px 10px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--tm-text);
+    outline: none;
+    resize: none;
+    min-height: 44px;
+  }
+  .photo-card .caption-input:focus {
+    background: #fafafa;
+  }
+  .photo-card .caption-input::placeholder {
+    color: var(--tm-text-subtle); font-style: italic;
+  }
+  .add-photo-tile {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--tm-border-strong);
+    background: var(--tm-white);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    color: var(--tm-text-muted);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .add-photo-tile:active { background: #fafafa; }
   .photo-hint { font-size: 11px; color: var(--tm-text-muted); margin-top: 8px; }
 
   /* Submit bar */
@@ -413,7 +501,7 @@
   }
   .submit-bar .btn { flex: 1; }
 
-  /* Review/detail view */
+  /* Review */
   .review-item {
     padding: 12px 0;
     border-bottom: 1px solid var(--tm-border);
@@ -442,6 +530,23 @@
   .review-rating-val.r1, .review-rating-val.r2 { background: var(--tm-danger-bg); color: var(--tm-danger); }
   .review-rating-val.r3 { background: var(--tm-warning-bg); color: var(--tm-warning); }
   .review-rating-val.r4, .review-rating-val.r5 { background: var(--tm-success-bg); color: var(--tm-success); }
+  .review-photo-card {
+    border: 1px solid var(--tm-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .review-photo-card .photo-thumb {
+    aspect-ratio: 4 / 3;
+    background: #f5f5f5 center/cover;
+  }
+  .review-photo-card .caption {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--tm-text);
+    border-top: 1px solid var(--tm-border);
+    min-height: 32px;
+  }
+  .review-photo-card .caption.muted { color: var(--tm-text-subtle); font-style: italic; }
 
   /* Toast */
   .toast-container {
@@ -519,24 +624,18 @@
     height: 100%; background: var(--tm-black); transition: width 0.3s;
   }
 
-  /* Settings / debug */
-  .settings-block {
-    background: #fafafa; border: 1px solid var(--tm-border);
-    border-radius: var(--radius-sm); padding: 12px;
-    margin-top: 12px; font-size: 12px;
-  }
-  .settings-block code {
-    font-family: "SF Mono", Consolas, monospace;
-    font-size: 11px; word-break: break-all;
-    background: white; padding: 6px 8px; border-radius: 4px;
-    display: block; margin-top: 4px; border: 1px solid var(--tm-border);
-  }
-
   /* Utilities */
   .row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .hidden { display: none !important; }
   .text-muted { color: var(--tm-text-muted); }
 
+  @media (max-width: 380px) {
+    .photo-grid { grid-template-columns: 1fr; }
+    .store-entry { grid-template-columns: 1fr auto; grid-template-areas: "name remove" "loc remove"; }
+    .store-entry .input:nth-child(1) { grid-area: name; }
+    .store-entry .input:nth-child(2) { grid-area: loc; }
+    .store-entry .store-remove { grid-area: remove; }
+  }
 </style>
 </head>
 <body>
@@ -545,11 +644,11 @@
 <div class="topbar" id="topbar">
   <img id="topbarLogo" class="topbar-logo" alt="TaylorMade" />
   <div class="topbar-title">
-    Brand Ambassador Visits
+    Field Reports
     <small id="topbarUser"></small>
   </div>
   <div class="topbar-actions">
-    <div id="netIndicator" class="net-indicator online"><span class="net-dot"></span><span id="netLabel">Online</span></div>
+    <div id="netIndicator" class="net-indicator notready"><span class="net-dot"></span><span id="netLabel">Not Connected</span></div>
   </div>
 </div>
 
@@ -558,10 +657,10 @@
   <div class="login-wrap">
     <div class="login-card">
       <img id="loginLogo" class="login-logo" alt="TaylorMade" />
-      <h1 class="login-heading">Brand Ambassador Visits</h1>
+      <h1 class="login-heading">Brand Ambassador Field Reports</h1>
       <p class="login-sub">Select your name to get started.</p>
       <div id="loginSetupWarning" class="hidden" style="background: var(--tm-warning-bg); border: 1px solid var(--tm-warning); color: var(--tm-warning); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; margin-bottom: 16px; line-height: 1.4;">
-        <b>Setup not complete.</b><br/>Webhook not configured yet — visits can be logged offline, but won't sync to SharePoint until <code>CONFIG.WEBHOOK_URL</code> is set.
+        <b>Setup incomplete.</b><br/><span id="loginSetupDetails"></span>
       </div>
       <div class="field">
         <label class="field-label" for="loginName">Ambassador</label>
@@ -584,18 +683,30 @@
     <button class="btn btn-ghost" onclick="logout()" style="font-size:12px">Sign out</button>
   </div>
 
-  <button class="action-btn primary" onclick="startNewVisit()">
-    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+  <div class="home-section-label">New Report</div>
+
+  <button class="action-btn primary" onclick="startNewVisit('store_visit')">
+    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2h-4v-7H9v7H5a2 2 0 01-2-2z"/></svg>
     <div>
-      <div class="action-title">Start New Visit</div>
-      <div class="action-sub">Log a store visit</div>
+      <div class="action-title">Store Visit</div>
+      <div class="action-sub">Log a single retail visit</div>
     </div>
   </button>
+
+  <button class="action-btn primary" onclick="startNewVisit('weekly_report')">
+    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <div>
+      <div class="action-title">Weekly Report</div>
+      <div class="action-sub">Region pulse & capability check</div>
+    </div>
+  </button>
+
+  <div class="home-section-label">Manage</div>
 
   <button class="action-btn" onclick="showScreen('screen-visits')">
     <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
     <div>
-      <div class="action-title">My Visits</div>
+      <div class="action-title">My Reports</div>
       <div class="action-sub" id="visitsSub">—</div>
     </div>
   </button>
@@ -623,9 +734,14 @@
   <div class="screen-header">
     <button class="back-btn" onclick="showScreen('screen-home')">‹</button>
     <div style="flex:1">
-      <h2 class="screen-title">My Visits</h2>
+      <h2 class="screen-title">My Reports</h2>
       <div class="screen-subtitle" id="visitsListSub">—</div>
     </div>
+  </div>
+  <div class="filter-tabs" id="filterTabs">
+    <button class="filter-tab active" data-filter="all" onclick="setListFilter('all')">All</button>
+    <button class="filter-tab" data-filter="store_visit" onclick="setListFilter('store_visit')">Store Visits</button>
+    <button class="filter-tab" data-filter="weekly_report" onclick="setListFilter('weekly_report')">Weekly Reports</button>
   </div>
   <div id="visitList" class="visit-list"></div>
 </div>
@@ -635,170 +751,17 @@
   <div class="screen-header">
     <button class="back-btn" onclick="cancelForm()">‹</button>
     <div style="flex:1">
-      <h2 class="screen-title" id="formTitle">New Visit</h2>
-      <div class="screen-subtitle" id="formSubtitle">Auto-saved as you type</div>
+      <h2 class="screen-title" id="formTitle">New Report</h2>
+      <div class="screen-subtitle">
+        <span id="formTypeIndicator" class="form-type-indicator store">Store Visit</span>
+        <span id="formSubtitle" style="margin-left:8px">Auto-saved as you type</span>
+      </div>
     </div>
   </div>
 
   <form id="visitForm" onsubmit="event.preventDefault();">
-    <!-- Section 1: Visit Info -->
-    <div class="section">
-      <h3 class="section-title">Visit Info</h3>
-
-      <div class="field">
-        <label class="field-label" for="f_date">Visit Date <span class="req">*</span></label>
-        <input type="date" id="f_date" class="input" />
-      </div>
-
-      <div class="field">
-        <label class="field-label" for="f_store">Store <span class="req">*</span></label>
-        <div class="autocomplete-wrap">
-          <input type="text" id="f_store" class="input" autocomplete="off" placeholder="e.g. PGA Tour Superstore" />
-          <div id="storeAutocomplete" class="autocomplete-list hidden"></div>
-        </div>
-        <div class="field-hint">Start typing — past entries will suggest below.</div>
-      </div>
-
-      <div class="field">
-        <label class="field-label" for="f_location">Store Location / City <span class="req">*</span></label>
-        <input type="text" id="f_location" class="input" placeholder="e.g. Scottsdale, AZ" />
-      </div>
-
-      <div class="field">
-        <label class="field-label" for="f_associates">Associate(s) Spoken To</label>
-        <input type="text" id="f_associates" class="input" placeholder="e.g. Mike (Head Fitter), Sarah" />
-      </div>
-
-      <div class="field">
-        <label class="field-label" for="f_duration">Time in Store <span class="req">*</span></label>
-        <div class="segmented" id="f_duration">
-          <label data-value="<30min">&lt;30 min</label>
-          <label data-value="30-60min">30–60 min</label>
-          <label data-value="1-2hr">1–2 hr</label>
-          <label data-value="2hr+">2 hr+</label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 2: Focus Areas -->
-    <div class="section">
-      <h3 class="section-title">Focus Areas <span class="section-count" id="focusCount"></span></h3>
-
-      <div class="field">
-        <label class="field-label">Categories Focused On <span class="req">*</span></label>
-        <div class="pill-group" id="f_categories">
-          <!-- populated by JS -->
-        </div>
-        <div class="field-hint">Select all that apply.</div>
-      </div>
-
-      <div class="field">
-        <label class="field-label" for="f_feedback">Product Feedback Received <span class="req">*</span></label>
-        <textarea id="f_feedback" class="textarea" placeholder="What did fitters/associates say about TaylorMade products? Be specific — direct quotes are gold."></textarea>
-      </div>
-    </div>
-
-    <!-- Section 3: Confidence Ratings -->
-    <div class="section">
-      <h3 class="section-title">Fitter & Associate Confidence</h3>
-      <p style="font-size:12px; color:var(--tm-text-muted); margin: 0 0 12px;">Rate how confident the store team feels fitting and educating on each selected category.</p>
-      <div id="confidenceRatings">
-        <div class="empty-state" id="confidenceEmpty">Select categories above to rate confidence.</div>
-      </div>
-      <div class="field" style="margin-top:14px">
-        <label class="field-label" for="f_gaps">Specific Gaps or Misconceptions</label>
-        <textarea id="f_gaps" class="textarea" placeholder="Any product knowledge gaps, misconceptions about TM tech, or training needs you noticed?"></textarea>
-      </div>
-    </div>
-
-    <!-- Section 4: Product & Fitting Needs -->
-    <div class="section">
-      <h3 class="section-title">Product &amp; Fitting Needs</h3>
-      <div class="field">
-        <label class="field-label" for="f_productNeeds">Product Needs</label>
-        <textarea id="f_productNeeds" class="textarea" placeholder="What's out of stock? What do they want more of?"></textarea>
-      </div>
-      <div class="field">
-        <label class="field-label" for="f_fittingNeeds">Fitting Component Needs</label>
-        <textarea id="f_fittingNeeds" class="textarea" placeholder="Shafts, grips, hosel sleeves, demo heads, etc."></textarea>
-      </div>
-    </div>
-
-    <!-- Section 5: Competitive Landscape -->
-    <div class="section">
-      <h3 class="section-title">Competitive Landscape</h3>
-      <div class="field">
-        <label class="field-label">Competitor(s) Making Strongest Impact</label>
-        <div class="pill-group" id="f_competitors"></div>
-      </div>
-      <div class="field">
-        <label class="field-label" for="f_competitorWhy">What's Working for Them?</label>
-        <textarea id="f_competitorWhy" class="textarea" placeholder="Why are they winning that battle? Specific products, messaging, POS, in-store placement?"></textarea>
-      </div>
-    </div>
-
-    <!-- Section 6: Brand Presence -->
-    <div class="section">
-      <h3 class="section-title">Brand Presence</h3>
-
-      <div class="field">
-        <label class="field-label">TaylorMade Visual Presence <span class="req">*</span></label>
-        <div class="rating-scale" style="gap:6px; justify-content:space-between;" id="f_tmPresence"></div>
-        <div class="rating-legend"><span>Invisible</span><span>Dominant</span></div>
-      </div>
-
-      <div class="field">
-        <label class="field-label" for="f_tmPresenceNotes">Presence Notes</label>
-        <textarea id="f_tmPresenceNotes" class="textarea" placeholder="Where does TM show up? End caps, fitting bays, signage, displays?"></textarea>
-      </div>
-
-      <div class="field">
-        <label class="field-label" for="f_competitorPresence">Competitor with Strongest Presence</label>
-        <select id="f_competitorPresence" class="select">
-          <option value="">— Select —</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="field-label">Who Owns This Store? <span class="req">*</span></label>
-        <div class="segmented" id="f_ownership">
-          <label data-value="TaylorMade">TaylorMade</label>
-          <label data-value="Neck-and-neck">Even</label>
-          <label data-value="Competitor">Competitor</label>
-          <label data-value="Hard to tell">Unclear</label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 7: Action Items -->
-    <div class="section">
-      <h3 class="section-title">Action Items</h3>
-      <div class="field">
-        <label class="field-label" for="f_actions">Action Items / Follow-Ups <span class="req">*</span></label>
-        <textarea id="f_actions" class="textarea" placeholder="What needs to happen next? Who owns it?"></textarea>
-      </div>
-      <div class="field">
-        <label class="field-label">Urgency <span class="req">*</span></label>
-        <div class="segmented" id="f_urgency">
-          <label data-value="Low">Low</label>
-          <label data-value="Medium">Medium</label>
-          <label data-value="High">High</label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 8: Photos -->
-    <div class="section">
-      <h3 class="section-title">Photos <span class="section-count" id="photoCount">0</span></h3>
-      <div class="photo-grid" id="photoGrid">
-        <label class="photo-tile add">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          <span>Add Photo</span>
-          <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event)" />
-        </label>
-      </div>
-      <p class="photo-hint">Photos sync to SharePoint when you hit Sync. Stored offline until then.</p>
-    </div>
+    <!-- Form sections are rendered dynamically based on visit type -->
+    <div id="formSections"></div>
 
     <!-- Submit bar -->
     <div class="submit-bar">
@@ -813,7 +776,7 @@
   <div class="screen-header">
     <button class="back-btn" onclick="showScreen('screen-visits')">‹</button>
     <div style="flex:1">
-      <h2 class="screen-title">Visit Details</h2>
+      <h2 class="screen-title">Report Details</h2>
       <div class="screen-subtitle" id="reviewSubtitle"></div>
     </div>
   </div>
@@ -831,18 +794,22 @@
   <div class="section">
     <h3 class="section-title">Connection</h3>
     <div class="field">
-      <label class="field-label">Webhook Status</label>
-      <div id="webhookStatus" style="font-size:14px; font-weight:600;">—</div>
+      <label class="field-label">Store Visit Webhook</label>
+      <div id="webhookStatusStore" style="font-size:14px; font-weight:600;">—</div>
     </div>
-    <button class="btn btn-secondary btn-block" onclick="testConnection()" style="margin-top:8px;">Test Connection</button>
+    <div class="field">
+      <label class="field-label">Weekly Report Webhook</label>
+      <div id="webhookStatusWeekly" style="font-size:14px; font-weight:600;">—</div>
+    </div>
+    <button class="btn btn-secondary btn-block" onclick="testAllConnections()" style="margin-top:8px;">Test Both Connections</button>
   </div>
 
   <div class="section">
     <h3 class="section-title">Storage</h3>
     <div class="field">
-      <div style="display:flex; justify-content:space-between; font-size:14px;"><span>Pending visits</span><b id="statPending">0</b></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px;"><span>Pending reports</span><b id="statPending">0</b></div>
       <div style="display:flex; justify-content:space-between; font-size:14px; margin-top:6px;"><span>Completed (synced)</span><b id="statSynced">0</b></div>
-      <div style="display:flex; justify-content:space-between; font-size:14px; margin-top:6px;"><span>Draft visits</span><b id="statDraft">0</b></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; margin-top:6px;"><span>Draft reports</span><b id="statDraft">0</b></div>
       <div style="display:flex; justify-content:space-between; font-size:14px; margin-top:6px;"><span>Photos cached</span><b id="statPhotos">0</b></div>
     </div>
   </div>
@@ -851,6 +818,13 @@
     <h3 class="section-title">Danger Zone</h3>
     <button class="btn btn-secondary btn-block" onclick="confirmClearSynced()" style="margin-bottom:8px;">Clear Synced History (local)</button>
     <p class="field-hint">Local only — SharePoint data is never touched.</p>
+  </div>
+
+  <div class="section">
+    <h3 class="section-title">About</h3>
+    <div style="font-size:13px; color:var(--tm-text-muted);">
+      Version <span id="appVersionDisplay">—</span>
+    </div>
   </div>
 </div>
 
@@ -884,8 +858,7 @@
    CONFIGURATION
    ===================================================================== */
 const CONFIG = {
-  // Ambassador roster — edit this list. Names shown in login dropdown.
-  // Alex leads the Brand Ambassador program.
+  // Ambassador roster — Alex leads the program.
   AMBASSADORS: [
     { name: "Alex Quzor", email: "Alex.Quzor@taylormadegolf.com", role: "Lead" },
     { name: "Ben Tracy", email: "Ben.Tracy@taylormadegolf.com" },
@@ -907,19 +880,22 @@ const CONFIG = {
     "Scotty Cameron", "L.A.B.", "Bettinardi", "Other"
   ],
 
-  // Power Automate webhook URL — paste your SAS-authenticated URL here
-  // (same pattern as the patrol app: trigger set to "Anyone", URL includes sp/sv/sig)
-  WEBHOOK_URL: "",
+  // TWO separate webhooks — paste your Power Automate URLs here.
+  // Each routes to its own SharePoint List in the BrandAmbassadors site.
+  WEBHOOK_URL_STORE_VISIT: "",
+  WEBHOOK_URL_WEEKLY_REPORT: "",
 
-  // SharePoint document library for photos (used server-side by Power Automate)
-  // Stored here as metadata only — the Power Automate flow handles actual uploads.
-  PHOTO_LIBRARY_HINT: "/sites/BrandAmbassadorVisits/Shared Documents/Visit Photos/",
-
-  APP_VERSION: "1.0.0"
+  APP_VERSION: "2.2.0"
 };
 
-// Official TaylorMade OnLight logo (embedded base64 — same asset used in patrol app)
-// Placeholder — user will replace with real logo via Box once integrated
+// Helper: get webhook for a given visit type
+function webhookFor(type) {
+  if (type === "store_visit") return CONFIG.WEBHOOK_URL_STORE_VISIT;
+  if (type === "weekly_report") return CONFIG.WEBHOOK_URL_WEEKLY_REPORT;
+  return "";
+}
+
+// Placeholder logo — replace with TaylorMade_Logo_2018_OnLight.jpg base64 when available
 const TM_LOGO_ONLIGHT = "data:image/svg+xml;base64," + btoa(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 40" width="300" height="40">
   <text x="0" y="30" font-family="Arial Black, Helvetica, sans-serif" font-size="30" font-weight="900" letter-spacing="-0.5" fill="#000">TaylorMade</text>
@@ -930,16 +906,17 @@ const TM_LOGO_ONLIGHT = "data:image/svg+xml;base64," + btoa(`
    STATE
    ===================================================================== */
 let state = {
-  currentUser: null,          // { name, email }
-  currentVisit: null,         // in-memory editing visit
-  visits: [],                 // all visits [{id, status, data, photos:[photoId...], createdAt, syncedAt, error}]
+  currentUser: null,
+  currentVisit: null,
+  visits: [],
   online: navigator.onLine,
-  lastScreen: "screen-home"
+  lastScreen: "screen-home",
+  listFilter: "all"
 };
 
-const STORAGE_KEY = "tm_ba_visits_v1";
-const USER_KEY = "tm_ba_user_v1";
-const STORE_HISTORY_KEY = "tm_ba_stores_v1";
+const STORAGE_KEY = "tm_ba_visits_v2";       // bumped key so v1 drafts don't collide
+const USER_KEY = "tm_ba_user_v2";
+const STORE_HISTORY_KEY = "tm_ba_stores_v2";
 
 /* =====================================================================
    INDEXEDDB for photos
@@ -948,7 +925,7 @@ let dbPromise = null;
 function openDB() {
   if (dbPromise) return dbPromise;
   dbPromise = new Promise((resolve, reject) => {
-    const req = indexedDB.open("tm_ba_photos", 1);
+    const req = indexedDB.open("tm_ba_photos_v2", 1);
     req.onupgradeneeded = e => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains("photos")) {
@@ -1002,14 +979,17 @@ function loadVisits() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     state.visits = raw ? JSON.parse(raw) : [];
+    // Migrate any photos that are bare strings into {id, caption} objects
+    state.visits.forEach(v => {
+      if (Array.isArray(v.photos)) {
+        v.photos = v.photos.map(p => typeof p === "string" ? { id: p, caption: "" } : p);
+      }
+    });
   } catch { state.visits = []; }
 }
 function saveVisits() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.visits));
-  } catch (err) {
-    console.error("saveVisits failed:", err);
-  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.visits)); }
+  catch (err) { console.error("saveVisits failed:", err); }
 }
 function loadUser() {
   try {
@@ -1021,9 +1001,7 @@ function saveUser(u) {
   try { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
   catch (err) { console.error("saveUser failed:", err); throw err; }
 }
-function clearUser() {
-  try { localStorage.removeItem(USER_KEY); } catch {}
-}
+function clearUser() { try { localStorage.removeItem(USER_KEY); } catch {} }
 
 function getStoreHistory() {
   try { return JSON.parse(localStorage.getItem(STORE_HISTORY_KEY) || "[]"); }
@@ -1035,7 +1013,8 @@ function addStoreToHistory(store, location) {
   const key = store.trim().toLowerCase();
   const filtered = history.filter(h => h.store.toLowerCase() !== key);
   filtered.unshift({ store: store.trim(), location: (location || "").trim(), ts: Date.now() });
-  localStorage.setItem(STORE_HISTORY_KEY, JSON.stringify(filtered.slice(0, 50)));
+  try { localStorage.setItem(STORE_HISTORY_KEY, JSON.stringify(filtered.slice(0, 50))); }
+  catch (err) { console.error("addStoreToHistory failed:", err); }
 }
 
 /* =====================================================================
@@ -1048,6 +1027,14 @@ function todayISO() {
   const d = new Date();
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
+function lastFridayISO() {
+  // Returns most recent past Friday (or today if today is Friday).
+  const d = new Date();
+  const day = d.getDay(); // 0=Sun, 5=Fri
+  const offset = (day - 5 + 7) % 7;
+  d.setDate(d.getDate() - offset);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
 function fmtDate(iso) {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
@@ -1056,6 +1043,19 @@ function fmtDate(iso) {
 function fmtDateTime(ms) {
   if (!ms) return "";
   return new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+function visitTypeLabel(type) {
+  if (type === "store_visit") return "Store Visit";
+  if (type === "weekly_report") return "Weekly Report";
+  return "Report";
+}
+function visitTypeClass(type) {
+  if (type === "store_visit") return "store";
+  if (type === "weekly_report") return "weekly";
+  return "";
+}
+function escapeHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -1089,7 +1089,7 @@ function renderLoginRoster() {
   CONFIG.AMBASSADORS.forEach(a => {
     const opt = document.createElement("option");
     opt.value = a.email;
-    opt.textContent = a.name;
+    opt.textContent = a.name + (a.role ? "  (" + a.role + ")" : "");
     sel.appendChild(opt);
   });
 }
@@ -1104,20 +1104,17 @@ function login() {
     state.currentUser = user;
     saveUser(user);
   } catch (err) {
-    // localStorage might be blocked (e.g. Safari private mode on file://)
     console.error("Could not save user:", err);
     state.currentUser = user;
-    toast("Signed in (session only — storage not available)", "warning");
+    toast("Signed in (session only — storage unavailable)", "warning");
   }
-  const topUser = document.getElementById("topbarUser");
-  const helloName = document.getElementById("helloName");
-  if (topUser) topUser.textContent = user.name;
-  if (helloName) helloName.textContent = user.name;
+  document.getElementById("topbarUser").textContent = user.name;
+  document.getElementById("helloName").textContent = user.name;
   refreshHome();
   showScreen("screen-home");
 }
 function logout() {
-  confirmAction("Sign out?", "Pending visits stay on this device until you sign back in.", () => {
+  confirmAction("Sign out?", "Pending reports stay on this device until you sign back in.", () => {
     clearUser();
     state.currentUser = null;
     document.getElementById("topbarUser").textContent = "";
@@ -1142,31 +1139,43 @@ function refreshHome() {
   badge.className = "action-badge" + (pending === 0 ? " zero" : "");
 
   const syncSub = document.getElementById("syncSub");
-  if (!CONFIG.WEBHOOK_URL) {
-    syncSub.textContent = "Webhook not configured";
+  const hasAnyWebhook = CONFIG.WEBHOOK_URL_STORE_VISIT || CONFIG.WEBHOOK_URL_WEEKLY_REPORT;
+  if (!hasAnyWebhook) {
+    syncSub.textContent = "No webhooks configured";
     syncSub.style.color = "var(--tm-danger)";
   } else {
     syncSub.style.color = "";
     syncSub.textContent = pending === 0
       ? "Everything is up to date"
-      : `${pending} visit${pending === 1 ? "" : "s"} ready to sync`;
+      : `${pending} report${pending === 1 ? "" : "s"} ready to sync`;
   }
 }
 
 /* =====================================================================
    VISITS LIST
    ===================================================================== */
+function setListFilter(filter) {
+  state.listFilter = filter;
+  document.querySelectorAll(".filter-tab").forEach(b =>
+    b.classList.toggle("active", b.dataset.filter === filter)
+  );
+  renderVisitsList();
+}
+
 function renderVisitsList() {
   const list = document.getElementById("visitList");
-  const mine = state.visits
-    .filter(v => v.ambassador === state.currentUser?.email)
-    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  let mine = state.visits.filter(v => v.ambassador === state.currentUser?.email);
+  if (state.listFilter !== "all") {
+    mine = mine.filter(v => v.type === state.listFilter);
+  }
+  mine = mine.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
+  const total = state.visits.filter(v => v.ambassador === state.currentUser?.email);
   document.getElementById("visitsListSub").textContent =
-    `${mine.length} total · ${mine.filter(v => v.status === "pending" || v.status === "error").length} pending sync`;
+    `${total.length} total · ${total.filter(v => v.status === "pending" || v.status === "error").length} pending sync`;
 
   if (mine.length === 0) {
-    list.innerHTML = `<div class="empty-state">No visits yet.<br/>Tap "Start New Visit" to begin.</div>`;
+    list.innerHTML = `<div class="empty-state">No reports yet.${state.listFilter === "all" ? "<br/>Tap a button on the home screen to begin." : ""}</div>`;
     return;
   }
 
@@ -1177,121 +1186,477 @@ function renderVisitsList() {
       synced: "Synced",
       error: "Sync Failed"
     }[v.status] || v.status;
-    const store = v.data?.store || "(no store)";
-    const date = v.data?.date ? fmtDate(v.data.date) : "";
+    const title = v.type === "store_visit"
+      ? (v.data?.store || "(no store)")
+      : ("Week of " + (v.data?.weekEnding ? fmtDate(v.data.weekEnding) : "—"));
+    const subInfo = v.type === "store_visit"
+      ? (v.data?.date ? fmtDate(v.data.date) : "")
+      : (v.data?.storesVisited?.length ? `${v.data.storesVisited.length} stores` : "");
     const when = v.updatedAt ? fmtDateTime(v.updatedAt) : "";
     return `
       <div class="visit-item" onclick="openVisit('${v.id}')">
         <div class="visit-row-1">
-          <div class="visit-store">${escapeHtml(store)}</div>
+          <div class="visit-store">${escapeHtml(title)}</div>
+          <div class="visit-type-badge ${visitTypeClass(v.type)}">${visitTypeLabel(v.type)}</div>
           <div class="visit-status status-${v.status}">${statusLabel}</div>
         </div>
-        <div class="visit-meta">${escapeHtml(date)}${date && when ? " · " : ""}Updated ${when}</div>
+        <div class="visit-meta">${escapeHtml(subInfo)}${subInfo && when ? " · " : ""}Updated ${when}</div>
       </div>
     `;
   }).join("");
 }
 
-function escapeHtml(s) {
-  return String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-}
-
 /* =====================================================================
-   VISIT FORM — new / edit
-   ===================================================================== */
-function blankVisitData() {
-  return {
-    date: todayISO(),
-    store: "",
-    location: "",
-    associates: "",
-    duration: "",
-    categories: [],
-    feedback: "",
-    confidence: {}, // { "Drivers": 4, "Wedges": 2, ... }
-    gaps: "",
-    productNeeds: "",
-    fittingNeeds: "",
-    competitors: [],
-    competitorWhy: "",
-    tmPresence: null,
-    tmPresenceNotes: "",
-    competitorPresence: "",
-    ownership: "",
-    actions: "",
-    urgency: ""
-  };
+   FORM SECTIONS — type-aware rendering
+   =====================================================================
+   Each visit type has its own:
+   - blank data template
+   - form sections rendered into #formSections
+   - validation rules
+   - sync payload shape
+*/
+
+function blankDataForType(type) {
+  if (type === "store_visit") {
+    return {
+      date: todayISO(),
+      store: "",
+      location: "",
+      associates: "",
+      duration: "",
+      categories: [],
+      feedbackFitters: "",
+      feedbackCustomers: "",
+      confidence: {},
+      gaps: "",
+      productNeeds: "",
+      fittingNeeds: "",
+      competitors: [],
+      competitorImpact: {},  // { "Callaway": 4, "Titleist": 5, ... }
+      competitorWhy: "",
+      tmPresence: null,
+      tmPresenceNotes: "",
+      competitorPresence: "",
+      ownership: "",
+      actions: "",
+      urgency: ""
+    };
+  }
+  if (type === "weekly_report") {
+    return {
+      weekEnding: lastFridayISO(),
+      storesVisited: [{ store: "", location: "" }],
+      totalFittings: "",
+      hoursInField: "",
+      topWin: "",
+      productStoryProduct: "",
+      productStoryDetails: "",
+      ambassadorConfidence: {},      // 1-5 for the ambassador's own readiness, per category
+      learningFocus: "",
+      trendingQuestions: "",
+      competitorMoves: "",
+      inventoryPain: "",
+      asksForHQ: "",
+      marketingNeeds: "",
+      trainingRequests: "",
+      nextWeekStores: "",
+      nextWeekFocus: "",
+      flagsForLead: ""
+    };
+  }
+  return {};
 }
 
-function startNewVisit() {
+function startNewVisit(type) {
   state.currentVisit = {
     id: uid(),
+    type: type,
     ambassador: state.currentUser.email,
     ambassadorName: state.currentUser.name,
     status: "draft",
-    data: blankVisitData(),
+    data: blankDataForType(type),
     photos: [],
     createdAt: Date.now(),
     updatedAt: Date.now()
   };
-  document.getElementById("formTitle").textContent = "New Visit";
-  populateFormFromVisit(state.currentVisit);
+  document.getElementById("formTitle").textContent = "New " + visitTypeLabel(type);
+  updateFormTypeIndicator(type);
+  renderFormForType(type);
   showScreen("screen-form");
+}
+
+function updateFormTypeIndicator(type) {
+  const ind = document.getElementById("formTypeIndicator");
+  ind.textContent = visitTypeLabel(type);
+  ind.className = "form-type-indicator " + visitTypeClass(type);
 }
 
 function editVisit(id) {
   const v = state.visits.find(x => x.id === id);
   if (!v) return;
-  state.currentVisit = JSON.parse(JSON.stringify(v)); // deep clone so cancel works
-  state.currentVisit.photos = v.photos || []; // photo IDs reference same IndexedDB entries
-  document.getElementById("formTitle").textContent = "Edit Visit";
-  populateFormFromVisit(state.currentVisit);
+  state.currentVisit = JSON.parse(JSON.stringify(v));
+  state.currentVisit.photos = v.photos || [];
+  document.getElementById("formTitle").textContent = "Edit " + visitTypeLabel(v.type);
+  updateFormTypeIndicator(v.type);
+  renderFormForType(v.type);
   showScreen("screen-form");
 }
 
-async function populateFormFromVisit(v) {
-  const d = v.data;
-  // Section 1
-  document.getElementById("f_date").value = d.date || todayISO();
-  document.getElementById("f_store").value = d.store || "";
-  document.getElementById("f_location").value = d.location || "";
-  document.getElementById("f_associates").value = d.associates || "";
-  setSegmented("f_duration", d.duration);
+/* ---------- STORE VISIT form sections ---------- */
+function renderStoreVisitForm() {
+  return `
+    <div class="section">
+      <h3 class="section-title">Visit Info</h3>
+      <div class="field">
+        <label class="field-label" for="f_date">Visit Date <span class="req">*</span></label>
+        <input type="date" id="f_date" class="input" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_store">Store <span class="req">*</span></label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="f_store" class="input" autocomplete="off" placeholder="e.g. PGA Tour Superstore" />
+          <div id="storeAutocomplete" class="autocomplete-list hidden"></div>
+        </div>
+        <div class="field-hint">Start typing — past entries will suggest below.</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_location">Store Location / City <span class="req">*</span></label>
+        <input type="text" id="f_location" class="input" placeholder="e.g. Scottsdale, AZ" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_associates">Associate(s) Spoken To</label>
+        <input type="text" id="f_associates" class="input" placeholder="e.g. Mike (Head Fitter), Sarah" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_duration">Time in Store <span class="req">*</span></label>
+        <div class="segmented" id="f_duration">
+          <label data-value="<30min">&lt;30</label>
+          <label data-value="30-60min">30–60</label>
+          <label data-value="1-2hr">1–2hr</label>
+          <label data-value="2-3hr">2–3hr</label>
+          <label data-value="3hr+">3hr+</label>
+        </div>
+      </div>
+    </div>
 
-  // Section 2
-  renderCategoryPills(d.categories || []);
-  document.getElementById("f_feedback").value = d.feedback || "";
+    <div class="section">
+      <h3 class="section-title">Focus Areas</h3>
+      <div class="field">
+        <label class="field-label">Categories Focused On <span class="req">*</span></label>
+        <div class="pill-group" id="f_categories"></div>
+        <div class="field-hint">Select all that apply.</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_feedbackFitters">Feedback from Fitters &amp; Associates <span class="req">*</span></label>
+        <textarea id="f_feedbackFitters" class="textarea" placeholder="What did the fitters and associates say about TaylorMade products? Direct quotes are gold."></textarea>
+        <div class="field-hint">Required if no customer feedback. Capture at least one audience.</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_feedbackCustomers">Feedback from Customers</label>
+        <textarea id="f_feedbackCustomers" class="textarea" placeholder="What did you overhear from customers? Reactions to products, brand perception, things they asked for."></textarea>
+        <div class="field-hint">Optional — capture if you observed customer conversations.</div>
+      </div>
+    </div>
 
-  // Section 3
-  renderConfidenceRatings(d.categories || [], d.confidence || {});
-  document.getElementById("f_gaps").value = d.gaps || "";
+    <div class="section">
+      <h3 class="section-title">Fitter & Associate Confidence</h3>
+      <p style="font-size:12px; color:var(--tm-text-muted); margin: 0 0 12px;">Rate how confident the store team feels fitting and educating on each selected category.</p>
+      <div id="confidenceRatings">
+        <div class="empty-state" style="padding:20px">Select categories above to rate confidence.</div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label class="field-label" for="f_gaps">Specific Gaps or Misconceptions</label>
+        <textarea id="f_gaps" class="textarea" placeholder="Any product knowledge gaps, misconceptions about TM tech, or training needs you noticed?"></textarea>
+      </div>
+    </div>
 
-  // Section 4
-  document.getElementById("f_productNeeds").value = d.productNeeds || "";
-  document.getElementById("f_fittingNeeds").value = d.fittingNeeds || "";
+    <div class="section">
+      <h3 class="section-title">Product &amp; Fitting Needs</h3>
+      <div class="field">
+        <label class="field-label" for="f_productNeeds">Product Needs</label>
+        <textarea id="f_productNeeds" class="textarea" placeholder="What's out of stock? What do they want more of?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_fittingNeeds">Fitting Component Needs</label>
+        <textarea id="f_fittingNeeds" class="textarea" placeholder="Shafts, grips, hosel sleeves, demo heads, etc."></textarea>
+      </div>
+    </div>
 
-  // Section 5
-  renderCompetitorPills(d.competitors || []);
-  document.getElementById("f_competitorWhy").value = d.competitorWhy || "";
+    <div class="section">
+      <h3 class="section-title">Competitive Landscape</h3>
+      <div class="field">
+        <label class="field-label">Competitor(s) Making an Impact</label>
+        <div class="pill-group" id="f_competitors"></div>
+        <div class="field-hint">Select all that apply, then rate their impact below.</div>
+      </div>
+      <div class="field">
+        <label class="field-label">Impact Rating per Competitor</label>
+        <p style="font-size:12px; color:var(--tm-text-muted); margin: 0 0 8px;">1 = barely present, 5 = dominating this store</p>
+        <div id="competitorImpactRatings">
+          <div class="empty-state" style="padding:20px">Select competitors above to rate impact.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_competitorWhy">What's Working for Them?</label>
+        <textarea id="f_competitorWhy" class="textarea" placeholder="Why are they winning that battle? Specific products, messaging, POS, in-store placement?"></textarea>
+      </div>
+    </div>
 
-  // Section 6
-  renderPresenceScale(d.tmPresence);
-  document.getElementById("f_tmPresenceNotes").value = d.tmPresenceNotes || "";
-  populateCompetitorSelect(d.competitorPresence);
-  setSegmented("f_ownership", d.ownership);
+    <div class="section">
+      <h3 class="section-title">Brand Presence</h3>
+      <div class="field">
+        <label class="field-label">TaylorMade Visual Presence <span class="req">*</span></label>
+        <div class="rating-scale" style="gap:6px; justify-content:space-between;" id="f_tmPresence"></div>
+        <div class="rating-legend"><span>Invisible</span><span>Dominant</span></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_tmPresenceNotes">Presence Notes</label>
+        <textarea id="f_tmPresenceNotes" class="textarea" placeholder="Where does TM show up? End caps, fitting bays, signage, displays?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Who Owns This Store? <span class="req">*</span></label>
+        <div class="segmented" id="f_ownership">
+          <label data-value="TaylorMade">TaylorMade</label>
+          <label data-value="Neck-and-neck">Even</label>
+          <label data-value="Competitor">Competitor</label>
+          <label data-value="Hard to tell">Unclear</label>
+        </div>
+      </div>
+      <div class="field hidden" id="f_competitorPresenceWrap">
+        <label class="field-label" for="f_competitorPresence">Which Competitor Owns It?</label>
+        <select id="f_competitorPresence" class="select">
+          <option value="">— Select —</option>
+        </select>
+        <div class="field-hint">Required when ownership is "Competitor."</div>
+      </div>
+    </div>
 
-  // Section 7
-  document.getElementById("f_actions").value = d.actions || "";
-  setSegmented("f_urgency", d.urgency);
+    <div class="section">
+      <h3 class="section-title">Action Items</h3>
+      <div class="field">
+        <label class="field-label" for="f_actions">Action Items / Follow-Ups <span class="req">*</span></label>
+        <textarea id="f_actions" class="textarea" placeholder="What needs to happen next? Who owns it?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Urgency <span class="req">*</span></label>
+        <div class="segmented" id="f_urgency">
+          <label data-value="Low">Low</label>
+          <label data-value="Medium">Medium</label>
+          <label data-value="High">High</label>
+        </div>
+      </div>
+    </div>
 
-  // Section 8 - photos
+    ${renderPhotoSectionHTML()}
+  `;
+}
+
+/* ---------- WEEKLY REPORT form sections ---------- */
+function renderWeeklyReportForm() {
+  return `
+    <div class="section">
+      <h3 class="section-title">Week Info</h3>
+      <div class="field">
+        <label class="field-label" for="f_weekEnding">Week Ending <span class="req">*</span></label>
+        <input type="date" id="f_weekEnding" class="input" />
+        <div class="field-hint">Defaults to last Friday.</div>
+      </div>
+      <div class="field">
+        <label class="field-label">Stores Visited This Week <span class="req">*</span></label>
+        <div id="storesVisitedList"></div>
+        <button type="button" class="add-store-btn" onclick="addStoreEntry()">+ Add another store</button>
+      </div>
+      <div class="row-split">
+        <div class="field">
+          <label class="field-label" for="f_totalFittings">Total Fittings / Conversations</label>
+          <input type="number" inputmode="numeric" id="f_totalFittings" class="input" placeholder="e.g. 23" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="f_hoursInField">Hours in Field</label>
+          <input type="number" inputmode="decimal" step="0.5" id="f_hoursInField" class="input" placeholder="e.g. 32" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Wins of the Week</h3>
+      <div class="field">
+        <label class="field-label" for="f_topWin">Top Win or Moment <span class="req">*</span></label>
+        <textarea id="f_topWin" class="textarea" placeholder="The biggest thing that went right this week. Be specific."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_productStoryProduct">Product That Landed Best</label>
+        <input type="text" id="f_productStoryProduct" class="input" placeholder="e.g. Qi35 Driver, TP5x, Spider Tour" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_productStoryDetails">What Story Worked?</label>
+        <textarea id="f_productStoryDetails" class="textarea" placeholder="What pitch, demo, or talking point resonated with fitters or consumers?"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">My Capability Check</h3>
+      <p style="font-size:12px; color:var(--tm-text-muted); margin: 0 0 12px;">Rate <b>your own</b> readiness to fit and educate on each category right now (1 = need help, 5 = expert).</p>
+      <div class="field">
+        <label class="field-label">Categories to Self-Rate <span class="req">*</span></label>
+        <div class="pill-group" id="f_categories"></div>
+        <div class="field-hint">Pick categories you actively touched this week.</div>
+      </div>
+      <div id="confidenceRatings">
+        <div class="empty-state" style="padding:20px">Select categories above to self-rate.</div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label class="field-label" for="f_learningFocus">What I'm Still Getting Up to Speed On</label>
+        <textarea id="f_learningFocus" class="textarea" placeholder="New product, tech, or fitting protocol you want more support on."></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Field Intelligence</h3>
+      <div class="field">
+        <label class="field-label" for="f_trendingQuestions">Trending Consumer Questions / Objections</label>
+        <textarea id="f_trendingQuestions" class="textarea" placeholder="What are golfers actually asking or pushing back on this week?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_competitorMoves">Competitor Moves Across Stores</label>
+        <textarea id="f_competitorMoves" class="textarea" placeholder="New displays, demos, pricing, reps showing up — anything moving the needle for them."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_inventoryPain">Inventory Pain Points</label>
+        <textarea id="f_inventoryPain" class="textarea" placeholder="What's out of stock or backlogged across multiple stores in your region?"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Asks for HQ</h3>
+      <div class="field">
+        <label class="field-label" for="f_asksForHQ">What Do I Need From the Team? <span class="req">*</span></label>
+        <textarea id="f_asksForHQ" class="textarea" placeholder="Anything blocking you, or any support that would meaningfully change your output."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_marketingNeeds">Marketing / POS / Sample Needs</label>
+        <textarea id="f_marketingNeeds" class="textarea" placeholder="Specific materials, samples, demo product, etc."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_trainingRequests">Training Requests</label>
+        <textarea id="f_trainingRequests" class="textarea" placeholder="Topics or product trainings that would help you (or store associates) most."></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Next Week's Plan</h3>
+      <div class="field">
+        <label class="field-label" for="f_nextWeekStores">Stores Planned</label>
+        <textarea id="f_nextWeekStores" class="textarea" placeholder="Where you're heading next week."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_nextWeekFocus">Focus Areas</label>
+        <textarea id="f_nextWeekFocus" class="textarea" placeholder="What you're going after — products, categories, accounts."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f_flagsForLead">Flags for Alex</label>
+        <textarea id="f_flagsForLead" class="textarea" placeholder="Anything Alex specifically needs to know."></textarea>
+      </div>
+    </div>
+
+    ${renderPhotoSectionHTML()}
+  `;
+}
+
+function renderPhotoSectionHTML() {
+  return `
+    <div class="section">
+      <h3 class="section-title">Photos <span class="section-count" id="photoCount">0</span></h3>
+      <div class="photo-grid" id="photoGrid">
+        <label class="add-photo-tile">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span style="margin-top:6px">Add Photo</span>
+          <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event)" />
+        </label>
+      </div>
+      <p class="photo-hint">Add an optional caption to each photo so reviewers know what they're looking at.</p>
+    </div>
+  `;
+}
+
+/* ---------- Main form renderer + wire-up ---------- */
+async function renderFormForType(type) {
+  const container = document.getElementById("formSections");
+  container.innerHTML = type === "store_visit" ? renderStoreVisitForm() : renderWeeklyReportForm();
+
+  // Wire up text/textarea/date/number inputs to data
+  const fieldMap = type === "store_visit" ? {
+    f_date: "date", f_store: "store", f_location: "location", f_associates: "associates",
+    f_feedbackFitters: "feedbackFitters", f_feedbackCustomers: "feedbackCustomers",
+    f_gaps: "gaps", f_productNeeds: "productNeeds",
+    f_fittingNeeds: "fittingNeeds", f_competitorWhy: "competitorWhy",
+    f_tmPresenceNotes: "tmPresenceNotes", f_actions: "actions"
+  } : {
+    f_weekEnding: "weekEnding", f_totalFittings: "totalFittings", f_hoursInField: "hoursInField",
+    f_topWin: "topWin", f_productStoryProduct: "productStoryProduct", f_productStoryDetails: "productStoryDetails",
+    f_learningFocus: "learningFocus", f_trendingQuestions: "trendingQuestions",
+    f_competitorMoves: "competitorMoves", f_inventoryPain: "inventoryPain",
+    f_asksForHQ: "asksForHQ", f_marketingNeeds: "marketingNeeds",
+    f_trainingRequests: "trainingRequests", f_nextWeekStores: "nextWeekStores",
+    f_nextWeekFocus: "nextWeekFocus", f_flagsForLead: "flagsForLead"
+  };
+
+  Object.entries(fieldMap).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = state.currentVisit.data[key] || "";
+    el.addEventListener("input", (e) => {
+      if (!state.currentVisit) return;
+      state.currentVisit.data[key] = e.target.value;
+      autoSaveDraft();
+    });
+  });
+
+  // Categories pills (both types use this)
+  renderCategoryPills(state.currentVisit.data.categories || (type === "weekly_report" ? Object.keys(state.currentVisit.data.ambassadorConfidence || {}) : []));
+
+  // Confidence ratings (semantic differs by type but UI is identical)
+  const confKey = type === "store_visit" ? "confidence" : "ambassadorConfidence";
+  // For weekly_report, derive categories from confidence map if not separately tracked
+  if (type === "weekly_report" && !state.currentVisit.data.categories) {
+    state.currentVisit.data.categories = Object.keys(state.currentVisit.data.ambassadorConfidence || {});
+  }
+  renderConfidenceRatings(state.currentVisit.data.categories || [], state.currentVisit.data[confKey] || {}, confKey);
+
+  if (type === "store_visit") {
+    // Segmented controls
+    setSegmented("f_duration", state.currentVisit.data.duration, "duration");
+    setSegmented("f_ownership", state.currentVisit.data.ownership, "ownership", updateCompetitorPresenceVisibility);
+    setSegmented("f_urgency", state.currentVisit.data.urgency, "urgency");
+
+    // Set initial visibility based on whatever ownership value is loaded
+    updateCompetitorPresenceVisibility(state.currentVisit.data.ownership);
+
+    // Competitor pills + select
+    renderCompetitorPills(state.currentVisit.data.competitors || []);
+    renderCompetitorImpactRatings(state.currentVisit.data.competitors || [], state.currentVisit.data.competitorImpact || {});
+    populateCompetitorSelect(state.currentVisit.data.competitorPresence);
+
+    // TM presence scale
+    renderPresenceScale(state.currentVisit.data.tmPresence);
+
+    // Autocomplete on store
+    setupStoreAutocomplete();
+  }
+
+  if (type === "weekly_report") {
+    renderStoresVisitedList();
+  }
+
   await renderPhotoGrid();
 }
 
+/* ---------- Shared form widgets ---------- */
 function renderCategoryPills(selected) {
   const wrap = document.getElementById("f_categories");
+  if (!wrap) return;
   wrap.innerHTML = CONFIG.CATEGORIES.map(c => {
-    const checked = selected.includes(c);
+    const checked = (selected || []).includes(c);
     return `<label class="pill ${checked ? "checked" : ""}" data-cat="${escapeHtml(c)}">
       <input type="checkbox" ${checked ? "checked" : ""} />${escapeHtml(c)}
     </label>`;
@@ -1302,26 +1667,23 @@ function renderCategoryPills(selected) {
       const input = p.querySelector("input");
       input.checked = !input.checked;
       p.classList.toggle("checked", input.checked);
-      updateCategoriesFromUI();
-      // Re-render confidence ratings since categories changed
-      renderConfidenceRatings(state.currentVisit.data.categories, state.currentVisit.data.confidence);
+      const cats = [...wrap.querySelectorAll(".pill.checked")].map(x => x.dataset.cat);
+      state.currentVisit.data.categories = cats;
+      const confKey = state.currentVisit.type === "store_visit" ? "confidence" : "ambassadorConfidence";
+      const conf = state.currentVisit.data[confKey] || {};
+      Object.keys(conf).forEach(k => { if (!cats.includes(k)) delete conf[k]; });
+      state.currentVisit.data[confKey] = conf;
+      renderConfidenceRatings(cats, conf, confKey);
       autoSaveDraft();
     });
   });
 }
-function updateCategoriesFromUI() {
-  const cats = [...document.querySelectorAll("#f_categories .pill.checked")].map(p => p.dataset.cat);
-  state.currentVisit.data.categories = cats;
-  // Prune confidence ratings for deselected categories
-  const conf = state.currentVisit.data.confidence || {};
-  Object.keys(conf).forEach(k => { if (!cats.includes(k)) delete conf[k]; });
-  state.currentVisit.data.confidence = conf;
-}
 
 function renderCompetitorPills(selected) {
   const wrap = document.getElementById("f_competitors");
+  if (!wrap) return;
   wrap.innerHTML = CONFIG.COMPETITORS.map(c => {
-    const checked = selected.includes(c);
+    const checked = (selected || []).includes(c);
     return `<label class="pill ${checked ? "checked" : ""}" data-comp="${escapeHtml(c)}">
       <input type="checkbox" ${checked ? "checked" : ""} />${escapeHtml(c)}
     </label>`;
@@ -1332,24 +1694,67 @@ function renderCompetitorPills(selected) {
       const input = p.querySelector("input");
       input.checked = !input.checked;
       p.classList.toggle("checked", input.checked);
-      const comps = [...document.querySelectorAll("#f_competitors .pill.checked")].map(p => p.dataset.comp);
+      const comps = [...wrap.querySelectorAll(".pill.checked")].map(x => x.dataset.comp);
       state.currentVisit.data.competitors = comps;
+      // Prune impact ratings for deselected competitors
+      const impact = state.currentVisit.data.competitorImpact || {};
+      Object.keys(impact).forEach(k => { if (!comps.includes(k)) delete impact[k]; });
+      state.currentVisit.data.competitorImpact = impact;
+      renderCompetitorImpactRatings(comps, impact);
       autoSaveDraft();
+    });
+  });
+}
+
+function renderCompetitorImpactRatings(competitors, impact) {
+  const wrap = document.getElementById("competitorImpactRatings");
+  if (!wrap) return;
+  if (!competitors || competitors.length === 0) {
+    wrap.innerHTML = `<div class="empty-state" style="padding:20px">Select competitors above to rate impact.</div>`;
+    return;
+  }
+  wrap.innerHTML = competitors.map(c => {
+    const current = impact[c] || 0;
+    return `<div class="rating-row">
+      <div class="rating-label">${escapeHtml(c)}</div>
+      <div class="rating-scale" data-comp="${escapeHtml(c)}">
+        ${[1,2,3,4,5].map(n =>
+          `<button type="button" class="rating-btn ${current === n ? "selected" : ""}" data-val="${n}">${n}</button>`
+        ).join("")}
+      </div>
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll(".rating-scale").forEach(scale => {
+    const comp = scale.dataset.comp;
+    scale.querySelectorAll(".rating-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const val = Number(btn.dataset.val);
+        state.currentVisit.data.competitorImpact = state.currentVisit.data.competitorImpact || {};
+        state.currentVisit.data.competitorImpact[comp] = val;
+        scale.querySelectorAll(".rating-btn").forEach(b => b.classList.toggle("selected", Number(b.dataset.val) === val));
+        autoSaveDraft();
+      });
     });
   });
 }
 
 function populateCompetitorSelect(selected) {
   const sel = document.getElementById("f_competitorPresence");
+  if (!sel) return;
   sel.innerHTML = `<option value="">— Select —</option>` + CONFIG.COMPETITORS.map(c =>
     `<option value="${escapeHtml(c)}" ${c === selected ? "selected" : ""}>${escapeHtml(c)}</option>`
   ).join("");
+  sel.addEventListener("change", (e) => {
+    state.currentVisit.data.competitorPresence = e.target.value;
+    autoSaveDraft();
+  });
 }
 
-function renderConfidenceRatings(categories, confidence) {
+function renderConfidenceRatings(categories, confidence, key) {
   const wrap = document.getElementById("confidenceRatings");
+  if (!wrap) return;
   if (!categories || categories.length === 0) {
-    wrap.innerHTML = `<div class="empty-state" style="padding:20px">Select categories above to rate confidence.</div>`;
+    wrap.innerHTML = `<div class="empty-state" style="padding:20px">Select categories above to rate.</div>`;
     return;
   }
   wrap.innerHTML = categories.map(c => {
@@ -1368,7 +1773,8 @@ function renderConfidenceRatings(categories, confidence) {
     scale.querySelectorAll(".rating-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const val = Number(btn.dataset.val);
-        state.currentVisit.data.confidence[cat] = val;
+        state.currentVisit.data[key] = state.currentVisit.data[key] || {};
+        state.currentVisit.data[key][cat] = val;
         scale.querySelectorAll(".rating-btn").forEach(b => b.classList.toggle("selected", Number(b.dataset.val) === val));
         autoSaveDraft();
       });
@@ -1378,6 +1784,7 @@ function renderConfidenceRatings(categories, confidence) {
 
 function renderPresenceScale(current) {
   const wrap = document.getElementById("f_tmPresence");
+  if (!wrap) return;
   wrap.innerHTML = [1,2,3,4,5].map(n =>
     `<button type="button" class="rating-btn ${current === n ? "selected" : ""}" data-val="${n}" style="flex:1">${n}</button>`
   ).join("");
@@ -1391,37 +1798,121 @@ function renderPresenceScale(current) {
   });
 }
 
-function setSegmented(wrapId, value) {
+function setSegmented(wrapId, value, dataKey, onChange) {
   const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
   wrap.querySelectorAll("label").forEach(l => {
     l.classList.toggle("checked", l.dataset.value === value);
     l.onclick = () => {
       wrap.querySelectorAll("label").forEach(x => x.classList.remove("checked"));
       l.classList.add("checked");
-      const field = {
-        f_duration: "duration",
-        f_ownership: "ownership",
-        f_urgency: "urgency"
-      }[wrapId];
-      if (field) state.currentVisit.data[field] = l.dataset.value;
+      state.currentVisit.data[dataKey] = l.dataset.value;
+      if (typeof onChange === "function") onChange(l.dataset.value);
       autoSaveDraft();
     };
   });
 }
 
+function updateCompetitorPresenceVisibility(ownership) {
+  const wrap = document.getElementById("f_competitorPresenceWrap");
+  if (!wrap) return;
+  const show = ownership === "Competitor";
+  wrap.classList.toggle("hidden", !show);
+  // If user moved away from "Competitor," clear the value so it doesn't ghost-submit
+  if (!show && state.currentVisit && state.currentVisit.data.competitorPresence) {
+    state.currentVisit.data.competitorPresence = "";
+    const sel = document.getElementById("f_competitorPresence");
+    if (sel) sel.value = "";
+  }
+}
+
+/* ---------- Weekly report: stores-visited mini-form ---------- */
+function renderStoresVisitedList() {
+  const wrap = document.getElementById("storesVisitedList");
+  if (!wrap) return;
+  const stores = state.currentVisit.data.storesVisited || [{ store: "", location: "" }];
+  state.currentVisit.data.storesVisited = stores;
+  wrap.innerHTML = stores.map((s, i) => `
+    <div class="store-entry" data-idx="${i}">
+      <input type="text" class="input" placeholder="Store name" value="${escapeHtml(s.store)}" data-field="store" />
+      <input type="text" class="input" placeholder="City, ST" value="${escapeHtml(s.location)}" data-field="location" />
+      <button type="button" class="store-remove" onclick="removeStoreEntry(${i})" aria-label="Remove">×</button>
+    </div>
+  `).join("");
+  wrap.querySelectorAll(".store-entry").forEach(entry => {
+    const idx = Number(entry.dataset.idx);
+    entry.querySelectorAll("input").forEach(input => {
+      input.addEventListener("input", (e) => {
+        state.currentVisit.data.storesVisited[idx][e.target.dataset.field] = e.target.value;
+        autoSaveDraft();
+      });
+    });
+  });
+}
+function addStoreEntry() {
+  state.currentVisit.data.storesVisited = state.currentVisit.data.storesVisited || [];
+  state.currentVisit.data.storesVisited.push({ store: "", location: "" });
+  renderStoresVisitedList();
+  autoSaveDraft();
+}
+function removeStoreEntry(idx) {
+  if (!state.currentVisit.data.storesVisited) return;
+  state.currentVisit.data.storesVisited.splice(idx, 1);
+  if (state.currentVisit.data.storesVisited.length === 0) {
+    state.currentVisit.data.storesVisited.push({ store: "", location: "" });
+  }
+  renderStoresVisitedList();
+  autoSaveDraft();
+}
+
+/* ---------- Store autocomplete (store_visit only) ---------- */
+function setupStoreAutocomplete() {
+  const input = document.getElementById("f_store");
+  const list = document.getElementById("storeAutocomplete");
+  if (!input || !list) return;
+  function renderAuto(q) {
+    const history = getStoreHistory();
+    const query = (q || "").trim().toLowerCase();
+    const matches = history.filter(h => !query || h.store.toLowerCase().includes(query)).slice(0, 6);
+    if (matches.length === 0) { list.classList.add("hidden"); return; }
+    list.innerHTML = matches.map(m => `
+      <div class="autocomplete-item" data-store="${escapeHtml(m.store)}" data-location="${escapeHtml(m.location)}">
+        <div style="font-weight:600">${escapeHtml(m.store)}</div>
+        ${m.location ? `<div style="font-size:12px; color:#999">${escapeHtml(m.location)}</div>` : ""}
+      </div>`).join("");
+    list.classList.remove("hidden");
+    list.querySelectorAll(".autocomplete-item").forEach(item => {
+      item.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        input.value = item.dataset.store;
+        if (state.currentVisit) state.currentVisit.data.store = item.dataset.store;
+        const loc = document.getElementById("f_location");
+        if (loc && !loc.value && item.dataset.location) {
+          loc.value = item.dataset.location;
+          state.currentVisit.data.location = item.dataset.location;
+        }
+        list.classList.add("hidden");
+        autoSaveDraft();
+      });
+    });
+  }
+  input.addEventListener("focus", () => renderAuto(input.value));
+  input.addEventListener("input", () => renderAuto(input.value));
+  input.addEventListener("blur", () => setTimeout(() => list.classList.add("hidden"), 150));
+}
+
 /* =====================================================================
-   PHOTO HANDLING
+   PHOTOS — with captions
    ===================================================================== */
 async function handlePhotoUpload(event) {
   const files = Array.from(event.target.files || []);
-  event.target.value = ""; // reset input so same file can be selected again
+  event.target.value = "";
   for (const file of files) {
     try {
-      // Compress large images
       const blob = await compressImage(file);
       const photoId = "p_" + uid();
       await savePhoto(photoId, blob, { filename: file.name, type: blob.type, size: blob.size });
-      state.currentVisit.photos.push(photoId);
+      state.currentVisit.photos.push({ id: photoId, caption: "" });
     } catch (err) {
       console.error(err);
       toast("Failed to add photo: " + file.name, "error");
@@ -1432,7 +1923,6 @@ async function handlePhotoUpload(event) {
 }
 
 async function compressImage(file) {
-  // If already small, keep as-is
   if (file.size < 500 * 1024) return file;
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -1450,10 +1940,7 @@ async function compressImage(file) {
       const canvas = document.createElement("canvas");
       canvas.width = w; canvas.height = h;
       canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-      canvas.toBlob(blob => {
-        if (blob) resolve(blob);
-        else reject(new Error("Compression failed"));
-      }, "image/jpeg", 0.85);
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Compression failed")), "image/jpeg", 0.85);
     };
     img.onerror = () => reject(new Error("Image load failed"));
   });
@@ -1461,115 +1948,54 @@ async function compressImage(file) {
 
 async function renderPhotoGrid() {
   const grid = document.getElementById("photoGrid");
+  if (!grid) return;
   const photos = state.currentVisit?.photos || [];
-  document.getElementById("photoCount").textContent = photos.length;
+  const countEl = document.getElementById("photoCount");
+  if (countEl) countEl.textContent = photos.length;
 
-  // Build thumbnails
-  const tiles = await Promise.all(photos.map(async (pid) => {
-    const rec = await getPhoto(pid);
+  const cards = await Promise.all(photos.map(async (photo, idx) => {
+    const rec = await getPhoto(photo.id);
     if (!rec) return "";
     const url = URL.createObjectURL(rec.blob);
-    return `<div class="photo-tile" style="background-image:url('${url}')">
-      <button type="button" class="remove-photo" onclick="removePhoto('${pid}')" aria-label="Remove">×</button>
-    </div>`;
+    return `
+      <div class="photo-card" data-photo-id="${photo.id}">
+        <div class="photo-thumb" style="background-image:url('${url}')">
+          <button type="button" class="remove-photo" onclick="removePhoto('${photo.id}')" aria-label="Remove">×</button>
+        </div>
+        <textarea class="caption-input" rows="2"
+          placeholder="Add a caption (optional)…"
+          data-photo-id="${photo.id}">${escapeHtml(photo.caption || "")}</textarea>
+      </div>
+    `;
   }));
 
-  grid.innerHTML = tiles.join("") + `
-    <label class="photo-tile add">
+  grid.innerHTML = cards.join("") + `
+    <label class="add-photo-tile">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      <span>Add Photo</span>
+      <span style="margin-top:6px">Add Photo</span>
       <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event)" />
     </label>
   `;
+
+  // Wire up caption inputs
+  grid.querySelectorAll(".caption-input").forEach(ta => {
+    ta.addEventListener("input", (e) => {
+      const photoId = e.target.dataset.photoId;
+      const photo = state.currentVisit.photos.find(p => p.id === photoId);
+      if (photo) {
+        photo.caption = e.target.value;
+        autoSaveDraft();
+      }
+    });
+  });
 }
 
 async function removePhoto(photoId) {
-  state.currentVisit.photos = (state.currentVisit.photos || []).filter(p => p !== photoId);
+  state.currentVisit.photos = (state.currentVisit.photos || []).filter(p => p.id !== photoId);
   await deletePhoto(photoId);
   autoSaveDraft();
   await renderPhotoGrid();
 }
-
-/* =====================================================================
-   AUTOCOMPLETE for store
-   ===================================================================== */
-(function setupStoreAutocomplete() {
-  // Listeners attach on DOMContentLoaded
-  document.addEventListener("DOMContentLoaded", () => {
-    const input = document.getElementById("f_store");
-    const list = document.getElementById("storeAutocomplete");
-    if (!input) return;
-
-    input.addEventListener("input", () => {
-      if (state.currentVisit) state.currentVisit.data.store = input.value;
-      autoSaveDraft();
-      renderAutocomplete(input.value);
-    });
-    input.addEventListener("focus", () => renderAutocomplete(input.value));
-    input.addEventListener("blur", () => {
-      // Delay so click on list item registers
-      setTimeout(() => list.classList.add("hidden"), 150);
-    });
-
-    function renderAutocomplete(q) {
-      const history = getStoreHistory();
-      const query = (q || "").trim().toLowerCase();
-      const matches = history.filter(h => !query || h.store.toLowerCase().includes(query)).slice(0, 6);
-      if (matches.length === 0) { list.classList.add("hidden"); return; }
-      list.innerHTML = matches.map(m => `
-        <div class="autocomplete-item" data-store="${escapeHtml(m.store)}" data-location="${escapeHtml(m.location)}">
-          <div style="font-weight:600">${escapeHtml(m.store)}</div>
-          ${m.location ? `<div style="font-size:12px; color:#999">${escapeHtml(m.location)}</div>` : ""}
-        </div>
-      `).join("");
-      list.classList.remove("hidden");
-      list.querySelectorAll(".autocomplete-item").forEach(item => {
-        item.addEventListener("mousedown", (e) => {
-          e.preventDefault();
-          input.value = item.dataset.store;
-          if (state.currentVisit) state.currentVisit.data.store = item.dataset.store;
-          if (item.dataset.location) {
-            const loc = document.getElementById("f_location");
-            if (loc && !loc.value) {
-              loc.value = item.dataset.location;
-              if (state.currentVisit) state.currentVisit.data.location = item.dataset.location;
-            }
-          }
-          list.classList.add("hidden");
-          autoSaveDraft();
-        });
-      });
-    }
-  });
-})();
-
-/* Hook text field changes for auto-save */
-document.addEventListener("DOMContentLoaded", () => {
-  const fields = ["f_date","f_location","f_associates","f_feedback","f_gaps","f_productNeeds","f_fittingNeeds","f_competitorWhy","f_tmPresenceNotes","f_actions"];
-  const map = {
-    f_date: "date", f_location: "location", f_associates: "associates",
-    f_feedback: "feedback", f_gaps: "gaps", f_productNeeds: "productNeeds",
-    f_fittingNeeds: "fittingNeeds", f_competitorWhy: "competitorWhy",
-    f_tmPresenceNotes: "tmPresenceNotes", f_actions: "actions"
-  };
-  fields.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) { console.warn("Missing field element:", id); return; }
-    el.addEventListener("input", (e) => {
-      if (!state.currentVisit) return;
-      state.currentVisit.data[map[id]] = e.target.value;
-      autoSaveDraft();
-    });
-  });
-  const compSel = document.getElementById("f_competitorPresence");
-  if (compSel) {
-    compSel.addEventListener("change", (e) => {
-      if (!state.currentVisit) return;
-      state.currentVisit.data.competitorPresence = e.target.value;
-      autoSaveDraft();
-    });
-  }
-});
 
 /* =====================================================================
    SAVE / SUBMIT
@@ -1580,9 +2006,12 @@ function autoSaveDraft() {
   clearTimeout(autoSaveTimeout);
   autoSaveTimeout = setTimeout(() => {
     state.currentVisit.updatedAt = Date.now();
-    state.currentVisit.status = state.currentVisit.status === "synced" ? "synced" : (state.currentVisit.status === "pending" || state.currentVisit.status === "error" ? state.currentVisit.status : "draft");
+    if (state.currentVisit.status !== "synced" && state.currentVisit.status !== "pending" && state.currentVisit.status !== "error") {
+      state.currentVisit.status = "draft";
+    }
     upsertVisit(state.currentVisit);
-    document.getElementById("formSubtitle").textContent = "Auto-saved " + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+    const sub = document.getElementById("formSubtitle");
+    if (sub) sub.textContent = "Auto-saved " + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
   }, 300);
 }
 
@@ -1598,29 +2027,47 @@ function saveDraft() {
   state.currentVisit.updatedAt = Date.now();
   if (state.currentVisit.status !== "synced") state.currentVisit.status = "draft";
   upsertVisit(state.currentVisit);
-  if (state.currentVisit.data.store) addStoreToHistory(state.currentVisit.data.store, state.currentVisit.data.location);
+  if (state.currentVisit.type === "store_visit" && state.currentVisit.data.store) {
+    addStoreToHistory(state.currentVisit.data.store, state.currentVisit.data.location);
+  }
   refreshHome();
   toast("Draft saved", "success");
   showScreen("screen-home");
 }
 
-function validateVisit(d) {
+function validateVisit(v) {
   const errors = {};
-  if (!d.date) errors.f_date = true;
-  if (!d.store || !d.store.trim()) errors.f_store = true;
-  if (!d.location || !d.location.trim()) errors.f_location = true;
-  if (!d.duration) errors.f_duration = true;
-  if (!d.categories || d.categories.length === 0) errors.f_categories = true;
-  if (!d.feedback || !d.feedback.trim()) errors.f_feedback = true;
-  if (!d.tmPresence) errors.f_tmPresence = true;
-  if (!d.ownership) errors.f_ownership = true;
-  if (!d.actions || !d.actions.trim()) errors.f_actions = true;
-  if (!d.urgency) errors.f_urgency = true;
+  const d = v.data;
+  if (v.type === "store_visit") {
+    if (!d.date) errors.f_date = true;
+    if (!d.store || !d.store.trim()) errors.f_store = true;
+    if (!d.location || !d.location.trim()) errors.f_location = true;
+    if (!d.duration) errors.f_duration = true;
+    if (!d.categories || d.categories.length === 0) errors.f_categories = true;
+    // Require at least one feedback audience — fitters OR customers
+    const hasFitterFB = d.feedbackFitters && d.feedbackFitters.trim();
+    const hasCustomerFB = d.feedbackCustomers && d.feedbackCustomers.trim();
+    if (!hasFitterFB && !hasCustomerFB) errors.f_feedbackFitters = true;
+    if (!d.tmPresence) errors.f_tmPresence = true;
+    if (!d.ownership) errors.f_ownership = true;
+    // If ownership is Competitor, require a specific competitor to be named
+    if (d.ownership === "Competitor" && (!d.competitorPresence || !d.competitorPresence.trim())) {
+      errors.f_competitorPresence = true;
+    }
+    if (!d.actions || !d.actions.trim()) errors.f_actions = true;
+    if (!d.urgency) errors.f_urgency = true;
+  } else if (v.type === "weekly_report") {
+    if (!d.weekEnding) errors.f_weekEnding = true;
+    const validStores = (d.storesVisited || []).filter(s => s.store && s.store.trim());
+    if (validStores.length === 0) errors.storesVisitedList = true;
+    if (!d.topWin || !d.topWin.trim()) errors.f_topWin = true;
+    if (!d.categories || d.categories.length === 0) errors.f_categories = true;
+    if (!d.asksForHQ || !d.asksForHQ.trim()) errors.f_asksForHQ = true;
+  }
   return errors;
 }
 
 function applyValidationErrors(errors) {
-  // Clear all first
   document.querySelectorAll(".invalid").forEach(el => el.classList.remove("invalid", "shake"));
   Object.keys(errors).forEach(id => {
     const el = document.getElementById(id);
@@ -1629,7 +2076,6 @@ function applyValidationErrors(errors) {
       setTimeout(() => el.classList.remove("shake"), 400);
     }
   });
-  // Scroll to first error
   const firstId = Object.keys(errors)[0];
   const firstEl = document.getElementById(firstId);
   if (firstEl) firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1637,7 +2083,7 @@ function applyValidationErrors(errors) {
 
 function submitVisit() {
   if (!state.currentVisit) return;
-  const errors = validateVisit(state.currentVisit.data);
+  const errors = validateVisit(state.currentVisit);
   if (Object.keys(errors).length > 0) {
     applyValidationErrors(errors);
     toast("Please fill in all required fields", "warning");
@@ -1647,139 +2093,227 @@ function submitVisit() {
   state.currentVisit.updatedAt = Date.now();
   state.currentVisit.completedAt = Date.now();
   upsertVisit(state.currentVisit);
-  if (state.currentVisit.data.store) addStoreToHistory(state.currentVisit.data.store, state.currentVisit.data.location);
+  if (state.currentVisit.type === "store_visit" && state.currentVisit.data.store) {
+    addStoreToHistory(state.currentVisit.data.store, state.currentVisit.data.location);
+  }
+  if (state.currentVisit.type === "weekly_report") {
+    (state.currentVisit.data.storesVisited || []).forEach(s => {
+      if (s.store && s.store.trim()) addStoreToHistory(s.store, s.location);
+    });
+  }
+  const typeLabel = visitTypeLabel(state.currentVisit.type);
   refreshHome();
-  toast("Visit complete — ready to sync", "success");
+  toast(typeLabel + " complete — ready to sync", "success");
   showScreen("screen-home");
-  // Auto-sync if online and webhook configured
-  if (state.online && CONFIG.WEBHOOK_URL) {
+  if (state.online && webhookFor(state.currentVisit.type)) {
     setTimeout(() => syncPendingVisits(), 800);
   }
 }
 
 function cancelForm() {
-  // If the form is a fresh unsaved visit, offer to discard
   if (!state.currentVisit) { showScreen("screen-home"); return; }
   const existing = state.visits.find(v => v.id === state.currentVisit.id);
-  if (!existing && !hasAnyData(state.currentVisit.data)) {
+  if (!existing && !hasAnyData(state.currentVisit)) {
     state.currentVisit = null;
     showScreen("screen-home");
     return;
   }
-  // Otherwise just go back — draft is auto-saved
   showScreen("screen-home");
 }
-function hasAnyData(d) {
-  if (!d) return false;
-  return (d.store || d.location || d.feedback || d.actions || (d.categories && d.categories.length));
+function hasAnyData(v) {
+  if (!v || !v.data) return false;
+  const d = v.data;
+  if (v.type === "store_visit") {
+    return !!(d.store || d.location || d.feedbackFitters || d.feedbackCustomers || d.actions || (d.categories && d.categories.length));
+  }
+  if (v.type === "weekly_report") {
+    return !!(d.topWin || d.asksForHQ || (d.storesVisited || []).some(s => s.store) || (d.categories && d.categories.length));
+  }
+  return false;
 }
 
 /* =====================================================================
-   REVIEW / DETAIL VIEW
+   REVIEW / DETAIL
    ===================================================================== */
 async function openVisit(id) {
   const v = state.visits.find(x => x.id === id);
   if (!v) return;
-  state.currentVisit = v; // reference, not clone — so photos render from same IDs
+  state.currentVisit = v;
   if (v.status === "draft" || v.status === "error") {
-    // Draft or failed — open in edit mode
     editVisit(id);
     return;
   }
-  // Synced or pending — show read-only review
   await renderReview(v);
   showScreen("screen-review");
 }
 
 async function renderReview(v) {
   const d = v.data || {};
+  const titleBit = v.type === "store_visit"
+    ? (d.store || "(no store)")
+    : ("Week of " + (d.weekEnding ? fmtDate(d.weekEnding) : "—"));
   document.getElementById("reviewSubtitle").textContent =
-    `${d.store || "(no store)"} · ${fmtDate(d.date)} · ${v.status}`;
+    `${visitTypeLabel(v.type)} · ${titleBit} · ${v.status}`;
 
-  const photoTiles = await Promise.all((v.photos || []).map(async pid => {
-    const rec = await getPhoto(pid);
-    if (!rec) return `<div class="photo-tile" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">missing</div>`;
+  const photoCards = await Promise.all((v.photos || []).map(async photo => {
+    const rec = await getPhoto(photo.id);
+    if (!rec) return `<div class="review-photo-card"><div class="photo-thumb" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">missing</div></div>`;
     const url = URL.createObjectURL(rec.blob);
-    return `<div class="photo-tile" style="background-image:url('${url}')"></div>`;
+    const cap = photo.caption || "";
+    return `<div class="review-photo-card">
+      <div class="photo-thumb" style="background-image:url('${url}')"></div>
+      <div class="caption ${cap ? "" : "muted"}">${cap ? escapeHtml(cap) : "No caption"}</div>
+    </div>`;
   }));
 
-  const content = document.getElementById("reviewContent");
-  content.innerHTML = `
-    <div class="section">
-      <h3 class="section-title">Visit Info</h3>
-      ${reviewItem("Ambassador", v.ambassadorName)}
-      ${reviewItem("Date", fmtDate(d.date))}
-      ${reviewItem("Store", d.store)}
-      ${reviewItem("Location", d.location)}
-      ${reviewItem("Associates", d.associates)}
-      ${reviewItem("Time in Store", d.duration)}
-    </div>
-    <div class="section">
-      <h3 class="section-title">Focus Areas</h3>
-      ${reviewTags("Categories", d.categories)}
-      ${reviewItem("Product Feedback", d.feedback)}
-    </div>
-    <div class="section">
-      <h3 class="section-title">Confidence Ratings</h3>
-      ${Object.keys(d.confidence || {}).length === 0
-        ? `<div class="review-value muted">No ratings recorded</div>`
-        : Object.entries(d.confidence).map(([cat, val]) => `
-            <div class="review-rating-row">
-              <span>${escapeHtml(cat)}</span>
-              <span class="review-rating-val r${val}">${val} / 5</span>
-            </div>`).join("")}
-      ${reviewItem("Gaps / Misconceptions", d.gaps)}
-    </div>
-    <div class="section">
-      <h3 class="section-title">Product &amp; Fitting Needs</h3>
-      ${reviewItem("Product Needs", d.productNeeds)}
-      ${reviewItem("Fitting Component Needs", d.fittingNeeds)}
-    </div>
-    <div class="section">
-      <h3 class="section-title">Competitive Landscape</h3>
-      ${reviewTags("Competitors", d.competitors)}
-      ${reviewItem("What's Working For Them", d.competitorWhy)}
-    </div>
-    <div class="section">
-      <h3 class="section-title">Brand Presence</h3>
-      <div class="review-rating-row">
-        <span>TaylorMade Presence</span>
-        <span class="review-rating-val r${d.tmPresence || 0}">${d.tmPresence ? d.tmPresence + " / 5" : "—"}</span>
+  let body = "";
+  if (v.type === "store_visit") {
+    body = `
+      <div class="section">
+        <h3 class="section-title">Visit Info</h3>
+        ${reviewItem("Ambassador", v.ambassadorName)}
+        ${reviewItem("Date", fmtDate(d.date))}
+        ${reviewItem("Store", d.store)}
+        ${reviewItem("Location", d.location)}
+        ${reviewItem("Associates", d.associates)}
+        ${reviewItem("Time in Store", d.duration)}
       </div>
-      ${reviewItem("Presence Notes", d.tmPresenceNotes)}
-      ${reviewItem("Competitor with Strongest Presence", d.competitorPresence)}
-      ${reviewItem("Who Owns This Store?", d.ownership)}
-    </div>
-    <div class="section">
-      <h3 class="section-title">Action Items</h3>
-      ${reviewItem("Action Items", d.actions)}
-      ${reviewItem("Urgency", d.urgency)}
-    </div>
-    ${(v.photos && v.photos.length) ? `
+      <div class="section">
+        <h3 class="section-title">Focus Areas</h3>
+        ${reviewTags("Categories", d.categories)}
+        ${reviewItem("Feedback — Fitters &amp; Associates", d.feedbackFitters)}
+        ${reviewItem("Feedback — Customers", d.feedbackCustomers)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Fitter & Associate Confidence</h3>
+        ${renderRatingMap(d.confidence)}
+        ${reviewItem("Gaps / Misconceptions", d.gaps)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Product &amp; Fitting Needs</h3>
+        ${reviewItem("Product Needs", d.productNeeds)}
+        ${reviewItem("Fitting Component Needs", d.fittingNeeds)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Competitive Landscape</h3>
+        ${reviewTags("Competitors", d.competitors)}
+        <div class="review-item">
+          <div class="review-label">Impact per Competitor</div>
+          ${renderRatingMap(d.competitorImpact)}
+        </div>
+        ${reviewItem("What's Working For Them", d.competitorWhy)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Brand Presence</h3>
+        <div class="review-rating-row">
+          <span>TaylorMade Presence</span>
+          <span class="review-rating-val r${d.tmPresence || 0}">${d.tmPresence ? d.tmPresence + " / 5" : "—"}</span>
+        </div>
+        ${reviewItem("Presence Notes", d.tmPresenceNotes)}
+        ${reviewItem("Who Owns This Store?", d.ownership)}
+        ${d.ownership === "Competitor" ? reviewItem("Which Competitor Owns It", d.competitorPresence) : ""}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Action Items</h3>
+        ${reviewItem("Action Items", d.actions)}
+        ${reviewItem("Urgency", d.urgency)}
+      </div>`;
+  } else if (v.type === "weekly_report") {
+    const storesList = (d.storesVisited || []).filter(s => s.store && s.store.trim());
+    body = `
+      <div class="section">
+        <h3 class="section-title">Week Info</h3>
+        ${reviewItem("Ambassador", v.ambassadorName)}
+        ${reviewItem("Week Ending", fmtDate(d.weekEnding))}
+        <div class="review-item">
+          <div class="review-label">Stores Visited (${storesList.length})</div>
+          ${storesList.length === 0 ? '<div class="review-value muted">None recorded</div>' :
+            '<div class="review-tags">' + storesList.map(s => `<span class="review-tag">${escapeHtml(s.store)}${s.location ? " — " + escapeHtml(s.location) : ""}</span>`).join("") + '</div>'}
+        </div>
+        ${reviewItem("Total Fittings / Conversations", d.totalFittings)}
+        ${reviewItem("Hours in Field", d.hoursInField)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Wins of the Week</h3>
+        ${reviewItem("Top Win", d.topWin)}
+        ${reviewItem("Product That Landed Best", d.productStoryProduct)}
+        ${reviewItem("What Worked", d.productStoryDetails)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">My Capability Check</h3>
+        ${renderRatingMap(d.ambassadorConfidence)}
+        ${reviewItem("Learning Focus", d.learningFocus)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Field Intelligence</h3>
+        ${reviewItem("Trending Consumer Questions", d.trendingQuestions)}
+        ${reviewItem("Competitor Moves", d.competitorMoves)}
+        ${reviewItem("Inventory Pain Points", d.inventoryPain)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Asks for HQ</h3>
+        ${reviewItem("What I Need", d.asksForHQ)}
+        ${reviewItem("Marketing / POS / Sample Needs", d.marketingNeeds)}
+        ${reviewItem("Training Requests", d.trainingRequests)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">Next Week's Plan</h3>
+        ${reviewItem("Stores Planned", d.nextWeekStores)}
+        ${reviewItem("Focus Areas", d.nextWeekFocus)}
+        ${reviewItem("Flags for Alex", d.flagsForLead)}
+      </div>`;
+  }
+
+  document.getElementById("reviewContent").innerHTML = body + (
+    (v.photos && v.photos.length) ? `
       <div class="section">
         <h3 class="section-title">Photos (${v.photos.length})</h3>
-        <div class="photo-grid">${photoTiles.join("")}</div>
-      </div>` : ""}
-    ${v.error ? `
+        <div class="photo-grid">${photoCards.join("")}</div>
+      </div>` : ""
+  ) + (v.status === "synced" && (v.sharePointItemUrl || v.sharePointPhotoFolderUrl) ? `
+      <div class="section">
+        <h3 class="section-title">SharePoint</h3>
+        ${v.sharePointItemUrl ? `<div class="review-item">
+          <div class="review-label">List Item</div>
+          <div class="review-value"><a href="${escapeHtml(v.sharePointItemUrl)}" target="_blank" rel="noopener" style="color:var(--tm-info); word-break:break-all;">${escapeHtml(v.sharePointItemUrl)}</a></div>
+        </div>` : ""}
+        ${v.sharePointPhotoFolderUrl ? `<div class="review-item">
+          <div class="review-label">Photo Folder</div>
+          <div class="review-value"><a href="${escapeHtml(v.sharePointPhotoFolderUrl)}" target="_blank" rel="noopener" style="color:var(--tm-info); word-break:break-all;">${escapeHtml(v.sharePointPhotoFolderUrl)}</a></div>
+        </div>` : ""}
+      </div>` : ""
+  ) + (v.error ? `
       <div class="section" style="background: var(--tm-danger-bg); border-color: var(--tm-danger);">
         <h3 class="section-title" style="color: var(--tm-danger)">Sync Error</h3>
         <div class="review-value">${escapeHtml(v.error)}</div>
-      </div>` : ""}
-  `;
+      </div>` : "");
 
   const actions = document.getElementById("reviewActions");
   if (v.status === "pending" || v.status === "error") {
     actions.innerHTML = `
       <button type="button" class="btn btn-secondary" onclick="editVisit('${v.id}')">Edit</button>
-      <button type="button" class="btn btn-primary" onclick="syncPendingVisits()">Sync Now</button>
-    `;
+      <button type="button" class="btn btn-primary" onclick="syncPendingVisits()">Sync Now</button>`;
   } else if (v.status === "synced") {
+    const spBtn = v.sharePointItemUrl
+      ? `<a class="btn btn-primary" href="${escapeHtml(v.sharePointItemUrl)}" target="_blank" rel="noopener">Open in SharePoint</a>`
+      : "";
     actions.innerHTML = `
-      <button type="button" class="btn btn-secondary" onclick="confirmDeleteLocal('${v.id}')">Remove From Device</button>
-    `;
+      ${spBtn}
+      <button type="button" class="btn btn-secondary" onclick="confirmDeleteLocal('${v.id}')">Remove From Device</button>`;
   } else {
     actions.innerHTML = `<button type="button" class="btn btn-primary" onclick="editVisit('${v.id}')">Continue Editing</button>`;
   }
+}
+
+function renderRatingMap(map) {
+  if (!map || Object.keys(map).length === 0) {
+    return `<div class="review-value muted">No ratings recorded</div>`;
+  }
+  return Object.entries(map).map(([cat, val]) => `
+    <div class="review-rating-row">
+      <span>${escapeHtml(cat)}</span>
+      <span class="review-rating-val r${val}">${val} / 5</span>
+    </div>`).join("");
 }
 
 function reviewItem(label, value) {
@@ -1791,10 +2325,7 @@ function reviewItem(label, value) {
 }
 function reviewTags(label, arr) {
   if (!arr || arr.length === 0) {
-    return `<div class="review-item">
-      <div class="review-label">${escapeHtml(label)}</div>
-      <div class="review-value muted">None selected</div>
-    </div>`;
+    return `<div class="review-item"><div class="review-label">${escapeHtml(label)}</div><div class="review-value muted">None selected</div></div>`;
   }
   return `<div class="review-item">
     <div class="review-label">${escapeHtml(label)}</div>
@@ -1806,7 +2337,7 @@ function confirmDeleteLocal(id) {
   confirmAction("Remove from device?", "This only deletes the local copy — the SharePoint record is untouched.", async () => {
     const v = state.visits.find(x => x.id === id);
     if (v) {
-      for (const pid of (v.photos || [])) await deletePhoto(pid);
+      for (const p of (v.photos || [])) await deletePhoto(p.id);
     }
     state.visits = state.visits.filter(x => x.id !== id);
     saveVisits();
@@ -1818,11 +2349,12 @@ function confirmDeleteLocal(id) {
 }
 
 /* =====================================================================
-   SYNC to SharePoint via Power Automate webhook
+   SYNC — routes to correct webhook by visit type
    ===================================================================== */
 async function syncPendingVisits() {
-  if (!CONFIG.WEBHOOK_URL) {
-    toast("Webhook not configured — set CONFIG.WEBHOOK_URL", "error");
+  const hasAnyWebhook = CONFIG.WEBHOOK_URL_STORE_VISIT || CONFIG.WEBHOOK_URL_WEEKLY_REPORT;
+  if (!hasAnyWebhook) {
+    toast("No webhooks configured — set CONFIG.WEBHOOK_URL_*", "error");
     return;
   }
   if (!state.online) {
@@ -1832,10 +2364,7 @@ async function syncPendingVisits() {
   const pending = state.visits.filter(v =>
     v.ambassador === state.currentUser.email && (v.status === "pending" || v.status === "error")
   );
-  if (pending.length === 0) {
-    toast("Nothing to sync", "success");
-    return;
-  }
+  if (pending.length === 0) { toast("Nothing to sync", "success"); return; }
 
   const overlay = document.getElementById("syncOverlay");
   const statusEl = document.getElementById("syncStatusText");
@@ -1843,87 +2372,79 @@ async function syncPendingVisits() {
   const fillEl = document.getElementById("syncProgressFill");
   overlay.classList.add("active");
 
-  let success = 0, failed = 0;
+  let success = 0, failed = 0, skipped = 0;
   for (let i = 0; i < pending.length; i++) {
     const v = pending[i];
     statusEl.textContent = `Syncing ${i + 1} of ${pending.length}`;
-    detailEl.textContent = v.data.store || "Visit";
+    detailEl.textContent = visitTypeLabel(v.type);
     fillEl.style.width = `${(i / pending.length) * 100}%`;
-    try {
-      await syncOne(v);
-      v.status = "synced";
-      v.syncedAt = Date.now();
-      v.error = null;
-      success++;
-    } catch (err) {
-      console.error("Sync failed for", v.id, err);
+    const url = webhookFor(v.type);
+    if (!url) {
       v.status = "error";
-      v.error = err?.message || String(err);
-      failed++;
+      v.error = "No webhook configured for " + visitTypeLabel(v.type);
+      skipped++;
+    } else {
+      try {
+        const flowResponse = await syncOne(v, url);
+        v.status = "synced";
+        v.syncedAt = Date.now();
+        v.error = null;
+        // Capture SharePoint URLs returned by the flow so the user can deep-link.
+        if (flowResponse && typeof flowResponse === "object") {
+          if (flowResponse.itemUrl) v.sharePointItemUrl = flowResponse.itemUrl;
+          if (flowResponse.itemId != null) v.sharePointItemId = flowResponse.itemId;
+          if (flowResponse.photoFolderUrl) v.sharePointPhotoFolderUrl = flowResponse.photoFolderUrl;
+        }
+        success++;
+      } catch (err) {
+        console.error("Sync failed for", v.id, err);
+        v.status = "error";
+        v.error = err?.message || String(err);
+        failed++;
+      }
     }
     upsertVisit(v);
   }
   fillEl.style.width = "100%";
   setTimeout(() => {
     overlay.classList.remove("active");
-    if (failed === 0) toast(`Synced ${success} visit${success === 1 ? "" : "s"}`, "success");
-    else toast(`${success} synced · ${failed} failed`, failed > 0 ? "error" : "success");
+    const failTotal = failed + skipped;
+    if (failTotal === 0) toast(`Synced ${success} report${success === 1 ? "" : "s"}`, "success");
+    else toast(`${success} synced · ${failTotal} failed`, "error");
     refreshHome();
     if (state.lastScreen === "screen-visits") renderVisitsList();
   }, 400);
 }
 
-async function syncOne(v) {
-  // Gather photos as base64
+async function syncOne(v, url) {
   const photoPayload = [];
-  for (const pid of (v.photos || [])) {
-    const rec = await getPhoto(pid);
+  for (const p of (v.photos || [])) {
+    const rec = await getPhoto(p.id);
     if (!rec) continue;
     const b64 = await blobToBase64(rec.blob);
     photoPayload.push({
       filename: `${v.id}_${photoPayload.length + 1}.jpg`,
+      caption: p.caption || "",
       contentType: rec.blob.type || "image/jpeg",
       sizeBytes: rec.blob.size,
-      data: b64 // base64 string without data URL prefix
+      data: b64
     });
   }
 
   const payload = {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    visitType: v.type,
     visitId: v.id,
     ambassadorEmail: v.ambassador,
     ambassadorName: v.ambassadorName,
     submittedAt: new Date(v.completedAt || v.updatedAt || Date.now()).toISOString(),
-    visit: {
-      date: v.data.date,
-      store: v.data.store,
-      location: v.data.location,
-      associates: v.data.associates,
-      duration: v.data.duration,
-      categories: v.data.categories,
-      categoriesString: (v.data.categories || []).join(", "),
-      feedback: v.data.feedback,
-      confidence: v.data.confidence,
-      confidenceString: Object.entries(v.data.confidence || {}).map(([k,v2]) => `${k}: ${v2}/5`).join(" | "),
-      gaps: v.data.gaps,
-      productNeeds: v.data.productNeeds,
-      fittingNeeds: v.data.fittingNeeds,
-      competitors: v.data.competitors,
-      competitorsString: (v.data.competitors || []).join(", "),
-      competitorWhy: v.data.competitorWhy,
-      tmPresence: v.data.tmPresence,
-      tmPresenceNotes: v.data.tmPresenceNotes,
-      competitorPresence: v.data.competitorPresence,
-      ownership: v.data.ownership,
-      actions: v.data.actions,
-      urgency: v.data.urgency
-    },
+    data: serializeDataForSync(v),
     photos: photoPayload,
     photoCount: photoPayload.length,
     appVersion: CONFIG.APP_VERSION
   };
 
-  const resp = await fetch(CONFIG.WEBHOOK_URL, {
+  const resp = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -1932,7 +2453,79 @@ async function syncOne(v) {
     const text = await resp.text().catch(() => "");
     throw new Error(`HTTP ${resp.status} ${resp.statusText}${text ? " — " + text.slice(0, 200) : ""}`);
   }
-  return resp;
+  // Parse the flow's response so we can capture the SharePoint item URL.
+  // Flow is expected to return: { ok: true, itemId: <int>, itemUrl: <DispForm URL>, photoFolderUrl: <URL> }
+  // Defensive: tolerate non-JSON or missing fields — the row was still created if HTTP was 2xx.
+  let parsed = null;
+  try {
+    const text = await resp.text();
+    parsed = text ? JSON.parse(text) : null;
+  } catch (err) {
+    console.warn("Sync response wasn't JSON — row likely still created. Parse error:", err);
+  }
+  return parsed || {};
+}
+
+function serializeDataForSync(v) {
+  const d = v.data || {};
+  if (v.type === "store_visit") {
+    return {
+      date: d.date,
+      store: d.store,
+      location: d.location,
+      associates: d.associates,
+      duration: d.duration,
+      categories: d.categories,
+      categoriesString: (d.categories || []).join(", "),
+      feedbackFitters: d.feedbackFitters,
+      feedbackCustomers: d.feedbackCustomers,
+      confidence: d.confidence,
+      confidenceString: Object.entries(d.confidence || {}).map(([k,v2]) => `${k}: ${v2}/5`).join(" | "),
+      gaps: d.gaps,
+      productNeeds: d.productNeeds,
+      fittingNeeds: d.fittingNeeds,
+      competitors: d.competitors,
+      competitorsString: (d.competitors || []).join(", "),
+      competitorImpact: d.competitorImpact,
+      competitorImpactString: Object.entries(d.competitorImpact || {}).map(([k,v2]) => `${k}: ${v2}/5`).join(" | "),
+      competitorWhy: d.competitorWhy,
+      tmPresence: d.tmPresence,
+      tmPresenceNotes: d.tmPresenceNotes,
+      competitorPresence: d.competitorPresence,
+      ownership: d.ownership,
+      actions: d.actions,
+      urgency: d.urgency
+    };
+  }
+  if (v.type === "weekly_report") {
+    const stores = (d.storesVisited || []).filter(s => s.store && s.store.trim());
+    return {
+      weekEnding: d.weekEnding,
+      storesVisited: stores,
+      storesVisitedString: stores.map(s => s.store + (s.location ? " (" + s.location + ")" : "")).join(" | "),
+      storesVisitedCount: stores.length,
+      totalFittings: d.totalFittings,
+      hoursInField: d.hoursInField,
+      topWin: d.topWin,
+      productStoryProduct: d.productStoryProduct,
+      productStoryDetails: d.productStoryDetails,
+      categories: d.categories,
+      categoriesString: (d.categories || []).join(", "),
+      ambassadorConfidence: d.ambassadorConfidence,
+      ambassadorConfidenceString: Object.entries(d.ambassadorConfidence || {}).map(([k,v2]) => `${k}: ${v2}/5`).join(" | "),
+      learningFocus: d.learningFocus,
+      trendingQuestions: d.trendingQuestions,
+      competitorMoves: d.competitorMoves,
+      inventoryPain: d.inventoryPain,
+      asksForHQ: d.asksForHQ,
+      marketingNeeds: d.marketingNeeds,
+      trainingRequests: d.trainingRequests,
+      nextWeekStores: d.nextWeekStores,
+      nextWeekFocus: d.nextWeekFocus,
+      flagsForLead: d.flagsForLead
+    };
+  }
+  return d;
 }
 
 function blobToBase64(blob) {
@@ -1957,71 +2550,106 @@ async function refreshSettings() {
   document.getElementById("statSynced").textContent = mine.filter(v => v.status === "synced").length;
   document.getElementById("statDraft").textContent = mine.filter(v => v.status === "draft").length;
   try { document.getElementById("statPhotos").textContent = await countPhotos(); } catch { document.getElementById("statPhotos").textContent = "?"; }
-  document.getElementById("webhookStatus").textContent = CONFIG.WEBHOOK_URL
-    ? (state.online ? "Configured · Online" : "Configured · Offline")
-    : "NOT CONFIGURED (edit CONFIG.WEBHOOK_URL in source)";
-  document.getElementById("webhookStatus").style.color = CONFIG.WEBHOOK_URL ? (state.online ? "var(--tm-success)" : "var(--tm-warning)") : "var(--tm-danger)";
+
+  const setStatus = (id, url) => {
+    const el = document.getElementById(id);
+    if (!url) { el.textContent = "NOT CONFIGURED"; el.style.color = "var(--tm-danger)"; return; }
+    el.textContent = state.online ? "Configured · Online" : "Configured · Offline";
+    el.style.color = state.online ? "var(--tm-success)" : "var(--tm-warning)";
+  };
+  setStatus("webhookStatusStore", CONFIG.WEBHOOK_URL_STORE_VISIT);
+  setStatus("webhookStatusWeekly", CONFIG.WEBHOOK_URL_WEEKLY_REPORT);
+
+  const ver = document.getElementById("appVersionDisplay");
+  if (ver) ver.textContent = CONFIG.APP_VERSION;
 }
 
-async function testConnection() {
-  if (!CONFIG.WEBHOOK_URL) { toast("No webhook configured", "error"); return; }
+async function testAllConnections() {
   if (!state.online) { toast("You're offline", "warning"); return; }
-  toast("Testing…");
-  try {
-    const resp = await fetch(CONFIG.WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ test: true, schemaVersion: 1, at: new Date().toISOString() })
-    });
-    if (resp.ok) toast("Connection OK", "success");
-    else toast(`HTTP ${resp.status}`, "error");
-  } catch (err) {
-    toast("Connection failed: " + err.message, "error");
+  const tests = [
+    { label: "Store Visit", url: CONFIG.WEBHOOK_URL_STORE_VISIT },
+    { label: "Weekly Report", url: CONFIG.WEBHOOK_URL_WEEKLY_REPORT }
+  ];
+  for (const t of tests) {
+    if (!t.url) { toast(`${t.label}: no webhook`, "warning"); continue; }
+    try {
+      const resp = await fetch(t.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ test: true, schemaVersion: 2, visitType: t.label.toLowerCase().replace(" ", "_"), at: new Date().toISOString() })
+      });
+      if (resp.ok) toast(`${t.label}: OK`, "success");
+      else toast(`${t.label}: HTTP ${resp.status}`, "error");
+    } catch (err) { toast(`${t.label}: ` + err.message, "error"); }
   }
 }
 
 function confirmClearSynced() {
-  confirmAction("Clear synced history?", "Deletes all synced visits and their photos from this device. SharePoint data is not touched.", async () => {
+  confirmAction("Clear synced history?", "Deletes all synced reports and their photos from this device. SharePoint data is not touched.", async () => {
     const before = state.visits.length;
     const syncedIds = state.visits.filter(v => v.ambassador === state.currentUser?.email && v.status === "synced").map(v => v.id);
     for (const id of syncedIds) {
       const v = state.visits.find(x => x.id === id);
-      if (v) for (const pid of (v.photos || [])) await deletePhoto(pid);
+      if (v) for (const p of (v.photos || [])) await deletePhoto(p.id);
     }
     state.visits = state.visits.filter(v => !syncedIds.includes(v.id));
     saveVisits();
     refreshHome();
     refreshSettings();
-    toast(`Cleared ${before - state.visits.length} visit(s)`, "success");
+    toast(`Cleared ${before - state.visits.length} report(s)`, "success");
   });
 }
 
 /* =====================================================================
-   NETWORK STATUS
+   NETWORK STATUS — 4 states based on webhook config + network
    ===================================================================== */
 function updateNetStatus() {
   state.online = navigator.onLine;
   const el = document.getElementById("netIndicator");
   const labelEl = document.getElementById("netLabel");
+  const has1 = !!CONFIG.WEBHOOK_URL_STORE_VISIT;
+  const has2 = !!CONFIG.WEBHOOK_URL_WEEKLY_REPORT;
 
-  // Three states: Not Connected (no webhook), Offline (no network), Online (both)
-  if (!CONFIG.WEBHOOK_URL) {
+  if (!has1 && !has2) {
     el.className = "net-indicator notready";
     labelEl.textContent = "Not Connected";
   } else if (!state.online) {
     el.className = "net-indicator offline";
     labelEl.textContent = "Offline";
+  } else if (!has1 || !has2) {
+    el.className = "net-indicator partial";
+    labelEl.textContent = "Partial Setup";
   } else {
     el.className = "net-indicator online";
     labelEl.textContent = "Online";
   }
 
+  // Login screen setup banner
+  const warn = document.getElementById("loginSetupWarning");
+  const details = document.getElementById("loginSetupDetails");
+  if (warn && details) {
+    if (!has1 && !has2) {
+      warn.classList.remove("hidden");
+      details.innerHTML = "No webhooks configured — reports can be logged offline but won't sync to SharePoint until <code>CONFIG.WEBHOOK_URL_STORE_VISIT</code> and <code>CONFIG.WEBHOOK_URL_WEEKLY_REPORT</code> are set.";
+    } else if (!has1 || !has2) {
+      warn.classList.remove("hidden");
+      const missing = !has1 ? "Store Visit" : "Weekly Report";
+      details.innerHTML = `${missing} webhook not configured — those reports won't sync. Edit <code>CONFIG.WEBHOOK_URL_${!has1 ? "STORE_VISIT" : "WEEKLY_REPORT"}</code>.`;
+    } else {
+      warn.classList.add("hidden");
+    }
+  }
+
   refreshSettings();
-  // Auto-sync when we come back online (only if webhook is configured)
-  if (state.online && state.currentUser && CONFIG.WEBHOOK_URL) {
-    const hasPending = state.visits.some(v => v.ambassador === state.currentUser.email && (v.status === "pending" || v.status === "error"));
+
+  if (state.online && state.currentUser && (has1 || has2)) {
+    const hasPending = state.visits.some(v =>
+      v.ambassador === state.currentUser.email &&
+      (v.status === "pending" || v.status === "error") &&
+      webhookFor(v.type)
+    );
     if (hasPending) {
-      toast("Back online — syncing pending visits…");
+      toast("Back online — syncing pending reports…");
       setTimeout(syncPendingVisits, 800);
     }
   }
@@ -2045,19 +2673,10 @@ showScreen = function(id) {
    ===================================================================== */
 function boot() {
   try {
-    // Logos
     document.getElementById("topbarLogo").src = TM_LOGO_ONLIGHT;
     document.getElementById("loginLogo").src = TM_LOGO_ONLIGHT;
-
     loadVisits();
     renderLoginRoster();
-
-    // Show setup warning if webhook isn't configured
-    if (!CONFIG.WEBHOOK_URL) {
-      const w = document.getElementById("loginSetupWarning");
-      if (w) w.classList.remove("hidden");
-    }
-
     updateNetStatus();
 
     const u = loadUser();
@@ -2071,25 +2690,22 @@ function boot() {
       showScreen("screen-login");
     }
   } catch (err) {
-    // Absolute last-resort fallback — if anything explodes, at least show the login screen
     console.error("Boot error:", err);
     try {
       renderLoginRoster();
       const warn = document.getElementById("loginSetupWarning");
-      if (warn) {
+      const details = document.getElementById("loginSetupDetails");
+      if (warn && details) {
         warn.classList.remove("hidden");
-        warn.innerHTML = "<b>Startup warning:</b><br/>" + (err.message || "Unknown error") + "<br/>App may have limited functionality. Try a different browser if issues persist.";
+        details.innerHTML = "<b>Startup warning:</b> " + (err.message || "Unknown error") + ". Try a different browser if the app doesn't behave.";
       }
     } catch {}
   }
 }
 
-// Run boot as soon as DOM is available — handles file:// quirks where
-// DOMContentLoaded may have already fired by the time we get here.
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", boot);
 } else {
-  // DOM already parsed — run now
   setTimeout(boot, 0);
 }
 </script>
