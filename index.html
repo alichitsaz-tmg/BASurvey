@@ -487,6 +487,24 @@
   .add-photo-tile:active { background: #fafafa; }
   .photo-hint { font-size: 11px; color: var(--tm-text-muted); margin-top: 8px; }
 
+  /* Per-section photo widgets, embedded inside parent sections */
+  .photos-inline {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--tm-border);
+  }
+  .photos-inline-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--tm-text-muted); margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .photos-inline-label .section-count {
+    color: var(--tm-text-subtle);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
   /* Submit bar */
   .submit-bar {
     position: sticky; bottom: 0;
@@ -882,10 +900,10 @@ const CONFIG = {
 
   // TWO separate webhooks — paste your Power Automate URLs here.
   // Each routes to its own SharePoint List in the BrandAmbassadors site.
-  WEBHOOK_URL_STORE_VISIT: "",
-  WEBHOOK_URL_WEEKLY_REPORT: "",
+  WEBHOOK_URL_STORE_VISIT: "https://default4f56e796915d4916a0f7066fbe562f.07.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/626414a5d66c4d9588ff2312ad30b04b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ne0aW4JMtx5GRzKsH9gODyZpdZUMKwf8YzdMcwXb72s",
+  WEBHOOK_URL_WEEKLY_REPORT: "https://default4f56e796915d4916a0f7066fbe562f.07.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3a884d13a74b49c288fedabeed25325a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zT-DtsDDAhQVfYtsAd-mj1PdqEZEQFmFtQypoJzycHg",
 
-  APP_VERSION: "2.2.0"
+  APP_VERSION: "2.3.0"
 };
 
 // Helper: get webhook for a given visit type
@@ -982,7 +1000,12 @@ function loadVisits() {
     // Migrate any photos that are bare strings into {id, caption} objects
     state.visits.forEach(v => {
       if (Array.isArray(v.photos)) {
-        v.photos = v.photos.map(p => typeof p === "string" ? { id: p, caption: "" } : p);
+        v.photos = v.photos.map(p => {
+          // v1: bare string ID. v2: {id, caption}. v2.3: {id, caption, section}.
+          if (typeof p === "string") return { id: p, caption: "", section: "general" };
+          if (p && !p.section) return { ...p, section: "general" };
+          return p;
+        });
       }
     });
   } catch { state.visits = []; }
@@ -1380,6 +1403,7 @@ function renderStoreVisitForm() {
         <label class="field-label" for="f_fittingNeeds">Fitting Component Needs</label>
         <textarea id="f_fittingNeeds" class="textarea" placeholder="Shafts, grips, hosel sleeves, demo heads, etc."></textarea>
       </div>
+      ${renderPhotoSectionHTML("needs", { title: "Photos", hint: "Empty shelves, missing demo gear, anything illustrating product or fitting needs.", headerStyle: "inline" })}
     </div>
 
     <div class="section">
@@ -1400,6 +1424,7 @@ function renderStoreVisitForm() {
         <label class="field-label" for="f_competitorWhy">What's Working for Them?</label>
         <textarea id="f_competitorWhy" class="textarea" placeholder="Why are they winning that battle? Specific products, messaging, POS, in-store placement?"></textarea>
       </div>
+      ${renderPhotoSectionHTML("competitive", { title: "Photos", hint: "Competitor displays, end caps, demos, signage you saw.", headerStyle: "inline" })}
     </div>
 
     <div class="section">
@@ -1429,6 +1454,7 @@ function renderStoreVisitForm() {
         </select>
         <div class="field-hint">Required when ownership is "Competitor."</div>
       </div>
+      ${renderPhotoSectionHTML("brand_presence", { title: "Photos", hint: "TaylorMade displays, end caps, fitting bays, in-store signage.", headerStyle: "inline" })}
     </div>
 
     <div class="section">
@@ -1445,9 +1471,10 @@ function renderStoreVisitForm() {
           <label data-value="High">High</label>
         </div>
       </div>
+      ${renderPhotoSectionHTML("action_items", { title: "Photos", hint: "Anything visual tied to follow-ups — receipts, damaged displays, items needing replacement.", headerStyle: "inline" })}
     </div>
 
-    ${renderPhotoSectionHTML()}
+    ${renderPhotoSectionHTML("general", { title: "Other Photos", hint: "Anything else worth capturing that didn't fit the sections above." })}
   `;
 }
 
@@ -1492,6 +1519,7 @@ function renderWeeklyReportForm() {
         <label class="field-label" for="f_productStoryDetails">What Story Worked?</label>
         <textarea id="f_productStoryDetails" class="textarea" placeholder="What pitch, demo, or talking point resonated with fitters or consumers?"></textarea>
       </div>
+      ${renderPhotoSectionHTML("wins", { title: "Photos", hint: "Win moments, hot product in action, displays you built.", headerStyle: "inline" })}
     </div>
 
     <div class="section">
@@ -1525,6 +1553,7 @@ function renderWeeklyReportForm() {
         <label class="field-label" for="f_inventoryPain">Inventory Pain Points</label>
         <textarea id="f_inventoryPain" class="textarea" placeholder="What's out of stock or backlogged across multiple stores in your region?"></textarea>
       </div>
+      ${renderPhotoSectionHTML("field_intel", { title: "Photos", hint: "Competitor moves, empty shelves, anything illustrating field conditions.", headerStyle: "inline" })}
     </div>
 
     <div class="section">
@@ -1559,22 +1588,55 @@ function renderWeeklyReportForm() {
       </div>
     </div>
 
-    ${renderPhotoSectionHTML()}
+    ${renderPhotoSectionHTML("general", { title: "Other Photos", hint: "Anything else worth capturing that didn't fit the sections above." })}
   `;
 }
 
-function renderPhotoSectionHTML() {
+// Photo sections used by each visit type. Order matters — defines display order in review.
+const PHOTO_SECTIONS = {
+  store_visit: [
+    { key: "needs",          label: "Product & Fitting Needs" },
+    { key: "competitive",    label: "Competitive Landscape" },
+    { key: "brand_presence", label: "Brand Presence" },
+    { key: "action_items",   label: "Action Items" },
+    { key: "general",        label: "Other / General" }
+  ],
+  weekly_report: [
+    { key: "wins",        label: "Wins of the Week" },
+    { key: "field_intel", label: "Field Intelligence" },
+    { key: "general",     label: "Other / General" }
+  ]
+};
+
+function sectionsForType(type) { return PHOTO_SECTIONS[type] || PHOTO_SECTIONS.store_visit; }
+
+function photoSectionLabel(type, key) {
+  const list = PHOTO_SECTIONS[type] || [];
+  const found = list.find(s => s.key === key);
+  return found ? found.label : "Other";
+}
+
+// Renders a per-section photo widget. Inline (inside its parent section), not its own .section block.
+function renderPhotoSectionHTML(sectionKey, opts) {
+  opts = opts || {};
+  const title = opts.title || "Photos";
+  const hint = opts.hint || "Add an optional caption to each photo so reviewers know what they're looking at.";
+  const headerStyle = opts.headerStyle || "section"; // 'section' = standalone, 'inline' = embedded inside parent section
+  const headerEl = headerStyle === "section"
+    ? `<h3 class="section-title">${escapeHtml(title)} <span class="section-count" data-photo-count="${escapeHtml(sectionKey)}">0</span></h3>`
+    : `<div class="photos-inline-label">${escapeHtml(title)} <span class="section-count" data-photo-count="${escapeHtml(sectionKey)}">0</span></div>`;
+  const wrapClass = headerStyle === "section" ? "section" : "field photos-inline";
   return `
-    <div class="section">
-      <h3 class="section-title">Photos <span class="section-count" id="photoCount">0</span></h3>
-      <div class="photo-grid" id="photoGrid">
+    <div class="${wrapClass}" data-photo-section="${escapeHtml(sectionKey)}">
+      ${headerEl}
+      <div class="photo-grid" data-photo-grid="${escapeHtml(sectionKey)}">
         <label class="add-photo-tile">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
           <span style="margin-top:6px">Add Photo</span>
-          <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event)" />
+          <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event, '${escapeHtml(sectionKey)}')" />
         </label>
       </div>
-      <p class="photo-hint">Add an optional caption to each photo so reviewers know what they're looking at.</p>
+      <p class="photo-hint">${escapeHtml(hint)}</p>
     </div>
   `;
 }
@@ -1904,7 +1966,8 @@ function setupStoreAutocomplete() {
 /* =====================================================================
    PHOTOS — with captions
    ===================================================================== */
-async function handlePhotoUpload(event) {
+async function handlePhotoUpload(event, sectionKey) {
+  if (!sectionKey) sectionKey = "general";
   const files = Array.from(event.target.files || []);
   event.target.value = "";
   for (const file of files) {
@@ -1912,7 +1975,7 @@ async function handlePhotoUpload(event) {
       const blob = await compressImage(file);
       const photoId = "p_" + uid();
       await savePhoto(photoId, blob, { filename: file.name, type: blob.type, size: blob.size });
-      state.currentVisit.photos.push({ id: photoId, caption: "" });
+      state.currentVisit.photos.push({ id: photoId, caption: "", section: sectionKey });
     } catch (err) {
       console.error(err);
       toast("Failed to add photo: " + file.name, "error");
@@ -1947,47 +2010,64 @@ async function compressImage(file) {
 }
 
 async function renderPhotoGrid() {
-  const grid = document.getElementById("photoGrid");
-  if (!grid) return;
-  const photos = state.currentVisit?.photos || [];
-  const countEl = document.getElementById("photoCount");
-  if (countEl) countEl.textContent = photos.length;
+  // Render one grid per [data-photo-grid] element on the page.
+  // Each photo carries a section key; orphans (legacy / missing) bucket to 'general'.
+  const grids = document.querySelectorAll("[data-photo-grid]");
+  if (grids.length === 0) return;
 
-  const cards = await Promise.all(photos.map(async (photo, idx) => {
-    const rec = await getPhoto(photo.id);
-    if (!rec) return "";
-    const url = URL.createObjectURL(rec.blob);
-    return `
-      <div class="photo-card" data-photo-id="${photo.id}">
-        <div class="photo-thumb" style="background-image:url('${url}')">
-          <button type="button" class="remove-photo" onclick="removePhoto('${photo.id}')" aria-label="Remove">×</button>
-        </div>
-        <textarea class="caption-input" rows="2"
-          placeholder="Add a caption (optional)…"
-          data-photo-id="${photo.id}">${escapeHtml(photo.caption || "")}</textarea>
-      </div>
-    `;
-  }));
+  const allPhotos = state.currentVisit?.photos || [];
+  // Migrate any photos missing a section (e.g., from drafts started before this version)
+  let migrated = false;
+  allPhotos.forEach(p => { if (!p.section) { p.section = "general"; migrated = true; } });
+  if (migrated) autoSaveDraft();
 
-  grid.innerHTML = cards.join("") + `
-    <label class="add-photo-tile">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      <span style="margin-top:6px">Add Photo</span>
-      <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event)" />
-    </label>
-  `;
-
-  // Wire up caption inputs
-  grid.querySelectorAll(".caption-input").forEach(ta => {
-    ta.addEventListener("input", (e) => {
-      const photoId = e.target.dataset.photoId;
-      const photo = state.currentVisit.photos.find(p => p.id === photoId);
-      if (photo) {
-        photo.caption = e.target.value;
-        autoSaveDraft();
-      }
-    });
+  // Update count badges across the form
+  document.querySelectorAll("[data-photo-count]").forEach(el => {
+    const key = el.dataset.photoCount;
+    el.textContent = allPhotos.filter(p => p.section === key).length;
   });
+
+  // Render each section's grid
+  for (const grid of grids) {
+    const sectionKey = grid.dataset.photoGrid;
+    const photos = allPhotos.filter(p => p.section === sectionKey);
+
+    const cards = await Promise.all(photos.map(async (photo) => {
+      const rec = await getPhoto(photo.id);
+      if (!rec) return "";
+      const url = URL.createObjectURL(rec.blob);
+      return `
+        <div class="photo-card" data-photo-id="${photo.id}">
+          <div class="photo-thumb" style="background-image:url('${url}')">
+            <button type="button" class="remove-photo" onclick="removePhoto('${photo.id}')" aria-label="Remove">×</button>
+          </div>
+          <textarea class="caption-input" rows="2"
+            placeholder="Add a caption (optional)…"
+            data-photo-id="${photo.id}">${escapeHtml(photo.caption || "")}</textarea>
+        </div>
+      `;
+    }));
+
+    grid.innerHTML = cards.join("") + `
+      <label class="add-photo-tile">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        <span style="margin-top:6px">Add Photo</span>
+        <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event, '${sectionKey}')" />
+      </label>
+    `;
+
+    // Wire up caption inputs for this grid
+    grid.querySelectorAll(".caption-input").forEach(ta => {
+      ta.addEventListener("input", (e) => {
+        const photoId = e.target.dataset.photoId;
+        const photo = state.currentVisit.photos.find(p => p.id === photoId);
+        if (photo) {
+          photo.caption = e.target.value;
+          autoSaveDraft();
+        }
+      });
+    });
+  }
 }
 
 async function removePhoto(photoId) {
@@ -2155,16 +2235,55 @@ async function renderReview(v) {
   document.getElementById("reviewSubtitle").textContent =
     `${visitTypeLabel(v.type)} · ${titleBit} · ${v.status}`;
 
-  const photoCards = await Promise.all((v.photos || []).map(async photo => {
-    const rec = await getPhoto(photo.id);
-    if (!rec) return `<div class="review-photo-card"><div class="photo-thumb" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">missing</div></div>`;
-    const url = URL.createObjectURL(rec.blob);
-    const cap = photo.caption || "";
-    return `<div class="review-photo-card">
-      <div class="photo-thumb" style="background-image:url('${url}')"></div>
-      <div class="caption ${cap ? "" : "muted"}">${cap ? escapeHtml(cap) : "No caption"}</div>
-    </div>`;
-  }));
+  // Build photo HTML grouped by section. Sections appear in the order defined for this visit type.
+  async function buildPhotoSectionHTML(photos) {
+    if (!photos || photos.length === 0) return "";
+    const sections = PHOTO_SECTIONS[v.type] || [{ key: "general", label: "Photos" }];
+    const parts = [];
+    for (const sec of sections) {
+      const sectionPhotos = photos.filter(p => (p.section || "general") === sec.key);
+      if (sectionPhotos.length === 0) continue;
+      const cards = await Promise.all(sectionPhotos.map(async photo => {
+        const rec = await getPhoto(photo.id);
+        if (!rec) return `<div class="review-photo-card"><div class="photo-thumb" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">missing</div></div>`;
+        const url = URL.createObjectURL(rec.blob);
+        const cap = photo.caption || "";
+        return `<div class="review-photo-card">
+          <div class="photo-thumb" style="background-image:url('${url}')"></div>
+          <div class="caption ${cap ? "" : "muted"}">${cap ? escapeHtml(cap) : "No caption"}</div>
+        </div>`;
+      }));
+      parts.push(`
+        <div style="margin-bottom: 16px;">
+          <div class="review-label" style="margin-bottom: 8px;">${escapeHtml(sec.label)} (${sectionPhotos.length})</div>
+          <div class="photo-grid">${cards.join("")}</div>
+        </div>
+      `);
+    }
+    // Handle orphan photos with unknown section keys (defensive)
+    const knownKeys = new Set(sections.map(s => s.key));
+    const orphans = photos.filter(p => !knownKeys.has(p.section || "general"));
+    if (orphans.length > 0) {
+      const cards = await Promise.all(orphans.map(async photo => {
+        const rec = await getPhoto(photo.id);
+        if (!rec) return "";
+        const url = URL.createObjectURL(rec.blob);
+        const cap = photo.caption || "";
+        return `<div class="review-photo-card">
+          <div class="photo-thumb" style="background-image:url('${url}')"></div>
+          <div class="caption ${cap ? "" : "muted"}">${cap ? escapeHtml(cap) : "No caption"}</div>
+        </div>`;
+      }));
+      parts.push(`
+        <div style="margin-bottom: 16px;">
+          <div class="review-label" style="margin-bottom: 8px;">Other (${orphans.length})</div>
+          <div class="photo-grid">${cards.join("")}</div>
+        </div>
+      `);
+    }
+    return parts.join("");
+  }
+  const photoSectionsHTML = await buildPhotoSectionHTML(v.photos);
 
   let body = "";
   if (v.type === "store_visit") {
@@ -2268,7 +2387,7 @@ async function renderReview(v) {
     (v.photos && v.photos.length) ? `
       <div class="section">
         <h3 class="section-title">Photos (${v.photos.length})</h3>
-        <div class="photo-grid">${photoCards.join("")}</div>
+        ${photoSectionsHTML}
       </div>` : ""
   ) + (v.status === "synced" && (v.sharePointItemUrl || v.sharePointPhotoFolderUrl) ? `
       <div class="section">
@@ -2418,18 +2537,34 @@ async function syncPendingVisits() {
 
 async function syncOne(v, url) {
   const photoPayload = [];
+  // Counter per section so filenames are scannable in the SharePoint folder
+  const sectionCounters = {};
   for (const p of (v.photos || [])) {
     const rec = await getPhoto(p.id);
     if (!rec) continue;
     const b64 = await blobToBase64(rec.blob);
+    const section = p.section || "general";
+    sectionCounters[section] = (sectionCounters[section] || 0) + 1;
+    // Filename pattern: <section>_<n>.jpg — e.g. brand_presence_1.jpg, competitive_2.jpg
+    const safeSection = section.replace(/[^a-z0-9_-]/gi, "-");
     photoPayload.push({
-      filename: `${v.id}_${photoPayload.length + 1}.jpg`,
+      filename: `${safeSection}_${sectionCounters[section]}.jpg`,
       caption: p.caption || "",
+      section: section,
+      sectionLabel: photoSectionLabel(v.type, section),
       contentType: rec.blob.type || "image/jpeg",
       sizeBytes: rec.blob.size,
       data: b64
     });
   }
+
+  // Build breakdown string for SharePoint column: "Brand Presence: 2 · Competitive Landscape: 1 · General: 0"
+  // Includes every section defined for this visit type (even zeros), in catalog order.
+  const breakdownParts = sectionsForType(v.type).map(s => {
+    const count = (sectionCounters[s.key] || 0);
+    return `${s.label}: ${count}`;
+  });
+  const photoSectionBreakdown = breakdownParts.join(" · ");
 
   const payload = {
     schemaVersion: 2,
@@ -2441,6 +2576,7 @@ async function syncOne(v, url) {
     data: serializeDataForSync(v),
     photos: photoPayload,
     photoCount: photoPayload.length,
+    photoSectionBreakdown: photoSectionBreakdown,
     appVersion: CONFIG.APP_VERSION
   };
 
