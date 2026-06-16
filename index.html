@@ -58,7 +58,7 @@
     padding-top: calc(12px + env(safe-area-inset-top, 0));
     display: flex; align-items: center; gap: 12px;
   }
-  .topbar-logo { height: 24px; flex-shrink: 0; }
+  .topbar-logo { height: 28px; flex-shrink: 0; }
   .topbar-title {
     font-size: 13px;
     font-weight: 600;
@@ -116,7 +116,7 @@
     padding: 32px 24px;
     box-shadow: var(--shadow-md);
   }
-  .login-logo { display: block; margin: 0 auto 20px; width: 220px; max-width: 80%; }
+  .login-logo { display: block; margin: 0 auto 24px; width: 240px; max-width: 70%; }
   .login-heading {
     text-align: center;
     font-size: 18px; font-weight: 700;
@@ -903,7 +903,7 @@ const CONFIG = {
   WEBHOOK_URL_STORE_VISIT: "https://default4f56e796915d4916a0f7066fbe562f.07.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/626414a5d66c4d9588ff2312ad30b04b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ne0aW4JMtx5GRzKsH9gODyZpdZUMKwf8YzdMcwXb72s",
   WEBHOOK_URL_WEEKLY_REPORT: "https://default4f56e796915d4916a0f7066fbe562f.07.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3a884d13a74b49c288fedabeed25325a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zT-DtsDDAhQVfYtsAd-mj1PdqEZEQFmFtQypoJzycHg",
 
-  APP_VERSION: "2.3.0"
+  APP_VERSION: "2.3.1"
 };
 
 // Helper: get webhook for a given visit type
@@ -913,8 +913,15 @@ function webhookFor(type) {
   return "";
 }
 
-// Placeholder logo — replace with TaylorMade_Logo_2018_OnLight.jpg base64 when available
-const TM_LOGO_ONLIGHT = "data:image/svg+xml;base64," + btoa(`
+// Brand logo. References the file at the repo root next to this HTML.
+// File: TaylorMade_Logo_2018_OnLight.jpg (black logo for light/white backgrounds)
+// Note: TaylorMade_Logo_2018_OnDark.jpg also exists at repo root, for future use
+// if a dark mode is ever added.
+const TM_LOGO_ONLIGHT = "TaylorMade_Logo_2018_OnLight.jpg";
+
+// SVG fallback used only if the JPG fails to load (offline first run, file missing).
+// Renders the same "TaylorMade" wordmark in plain text so the UI never looks broken.
+const TM_LOGO_FALLBACK = "data:image/svg+xml;base64," + btoa(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 40" width="300" height="40">
   <text x="0" y="30" font-family="Arial Black, Helvetica, sans-serif" font-size="30" font-weight="900" letter-spacing="-0.5" fill="#000">TaylorMade</text>
 </svg>
@@ -2809,8 +2816,18 @@ showScreen = function(id) {
    ===================================================================== */
 function boot() {
   try {
-    document.getElementById("topbarLogo").src = TM_LOGO_ONLIGHT;
-    document.getElementById("loginLogo").src = TM_LOGO_ONLIGHT;
+    // Set logo with fallback. If the JPG can't load (offline first run,
+    // file missing from repo root), swap to the inline SVG wordmark so
+    // the UI never shows a broken-image icon.
+    ["topbarLogo", "loginLogo"].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.onerror = () => {
+        el.onerror = null; // prevent infinite loop if fallback also fails
+        el.src = TM_LOGO_FALLBACK;
+      };
+      el.src = TM_LOGO_ONLIGHT;
+    });
     loadVisits();
     renderLoginRoster();
     updateNetStatus();
