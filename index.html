@@ -819,7 +819,11 @@
       <label class="field-label">Weekly Report Webhook</label>
       <div id="webhookStatusWeekly" style="font-size:14px; font-weight:600;">—</div>
     </div>
-    <button class="btn btn-secondary btn-block" onclick="testAllConnections()" style="margin-top:8px;">Test Both Connections</button>
+    <div class="field">
+      <label class="field-label">Photo Upload Webhook</label>
+      <div id="webhookStatusPhoto" style="font-size:14px; font-weight:600;">—</div>
+    </div>
+    <button class="btn btn-secondary btn-block" onclick="testAllConnections()" style="margin-top:8px;">Test All Connections</button>
   </div>
 
   <div class="section">
@@ -889,7 +893,7 @@ const CONFIG = {
 
   CATEGORIES: [
     "Drivers", "Fairways", "Hybrids", "Irons", "Wedges", "Putters",
-    "Balls", "Bags", "Gloves", "Apparel", "Fitting Bays", "Launch Monitors"
+    "Balls", "Fitting Bays"
   ],
 
   COMPETITORS: [
@@ -903,7 +907,13 @@ const CONFIG = {
   WEBHOOK_URL_STORE_VISIT: "https://default4f56e796915d4916a0f7066fbe562f.07.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/626414a5d66c4d9588ff2312ad30b04b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ne0aW4JMtx5GRzKsH9gODyZpdZUMKwf8YzdMcwXb72s",
   WEBHOOK_URL_WEEKLY_REPORT: "https://default4f56e796915d4916a0f7066fbe562f.07.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3a884d13a74b49c288fedabeed25325a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=zT-DtsDDAhQVfYtsAd-mj1PdqEZEQFmFtQypoJzycHg",
 
-  APP_VERSION: "2.3.1"
+  // Shared photo-upload endpoint — ONE flow handles photos for both report types.
+  // Each photo is POSTed individually (small, fast, retryable) BEFORE the report
+  // data is sent. This avoids the 120s synchronous-response timeout that large
+  // multi-photo payloads were hitting. Paste the photo flow's URL here.
+  WEBHOOK_URL_PHOTO: "",
+
+  APP_VERSION: "2.4.0"
 };
 
 // Helper: get webhook for a given visit type
@@ -1342,12 +1352,24 @@ function renderStoreVisitForm() {
         <input type="date" id="f_date" class="input" />
       </div>
       <div class="field">
-        <label class="field-label" for="f_store">Store <span class="req">*</span></label>
-        <div class="autocomplete-wrap">
-          <input type="text" id="f_store" class="input" autocomplete="off" placeholder="e.g. PGA Tour Superstore" />
-          <div id="storeAutocomplete" class="autocomplete-list hidden"></div>
-        </div>
-        <div class="field-hint">Start typing — past entries will suggest below.</div>
+        <label class="field-label" for="f_store_select">Store <span class="req">*</span></label>
+        <select id="f_store_select" class="select" onchange="handleStoreSelect(this.value)">
+          <option value="">— Select a store —</option>
+          <option value="Worldwide Golf Shops">Worldwide Golf Shops</option>
+          <option value="Golf Galaxy">Golf Galaxy</option>
+          <option value="Dick's House of Sport">Dick's House of Sport</option>
+          <option value="PGA Tour Superstore">PGA Tour Superstore</option>
+          <option value="Scheels - The Colony">Scheels - The Colony</option>
+          <option value="Scheels - Chandler">Scheels - Chandler</option>
+          <option value="2nd Swing - Talking Stick">2nd Swing - Talking Stick</option>
+          <option value="2nd Swing - Dallas">2nd Swing - Dallas</option>
+          <option value="RKA">RKA (type in store name)</option>
+        </select>
+      </div>
+      <div class="field hidden" id="f_store_manual_wrap">
+        <label class="field-label" for="f_store">Store Name <span class="req">*</span></label>
+        <input type="text" id="f_store" class="input" autocomplete="off" placeholder="Type the store name…" />
+        <div id="storeAutocomplete" class="autocomplete-list hidden"></div>
       </div>
       <div class="field">
         <label class="field-label" for="f_location">Store Location / City <span class="req">*</span></label>
@@ -1500,15 +1522,9 @@ function renderWeeklyReportForm() {
         <div id="storesVisitedList"></div>
         <button type="button" class="add-store-btn" onclick="addStoreEntry()">+ Add another store</button>
       </div>
-      <div class="row-split">
-        <div class="field">
-          <label class="field-label" for="f_totalFittings">Total Fittings / Conversations</label>
-          <input type="number" inputmode="numeric" id="f_totalFittings" class="input" placeholder="e.g. 23" />
-        </div>
-        <div class="field">
-          <label class="field-label" for="f_hoursInField">Hours in Field</label>
-          <input type="number" inputmode="decimal" step="0.5" id="f_hoursInField" class="input" placeholder="e.g. 32" />
-        </div>
+      <div class="field">
+        <label class="field-label" for="f_totalFittings">Total Stores Visited This Week</label>
+        <input type="number" inputmode="numeric" id="f_totalFittings" class="input" placeholder="e.g. 8" />
       </div>
     </div>
 
@@ -1520,7 +1536,7 @@ function renderWeeklyReportForm() {
       </div>
       <div class="field">
         <label class="field-label" for="f_productStoryProduct">Product That Landed Best</label>
-        <input type="text" id="f_productStoryProduct" class="input" placeholder="e.g. Qi35 Driver, TP5x, Spider Tour" />
+        <input type="text" id="f_productStoryProduct" class="input" placeholder="e.g. Qi4D Driver, TP5x, Spider Tour" />
       </div>
       <div class="field">
         <label class="field-label" for="f_productStoryDetails">What Story Worked?</label>
@@ -1530,8 +1546,8 @@ function renderWeeklyReportForm() {
     </div>
 
     <div class="section">
-      <h3 class="section-title">My Capability Check</h3>
-      <p style="font-size:12px; color:var(--tm-text-muted); margin: 0 0 12px;">Rate <b>your own</b> readiness to fit and educate on each category right now (1 = need help, 5 = expert).</p>
+      <h3 class="section-title">Fitter &amp; Associate Capability Check</h3>
+      <p style="font-size:12px; color:var(--tm-text-muted); margin: 0 0 12px;">Rate the overall readiness of fitters and associates to properly discuss and fit each category (1 = Need Help, 5 = Expert).</p>
       <div class="field">
         <label class="field-label">Categories to Self-Rate <span class="req">*</span></label>
         <div class="pill-group" id="f_categories"></div>
@@ -1541,8 +1557,8 @@ function renderWeeklyReportForm() {
         <div class="empty-state" style="padding:20px">Select categories above to self-rate.</div>
       </div>
       <div class="field" style="margin-top:14px">
-        <label class="field-label" for="f_learningFocus">What I'm Still Getting Up to Speed On</label>
-        <textarea id="f_learningFocus" class="textarea" placeholder="New product, tech, or fitting protocol you want more support on."></textarea>
+        <label class="field-label" for="f_learningFocus">Where Are They Struggling Most?</label>
+        <textarea id="f_learningFocus" class="textarea" placeholder="Where do fitters or associates need the most support — product knowledge, fitting process, specific categories?"></textarea>
       </div>
     </div>
 
@@ -1709,7 +1725,8 @@ async function renderFormForType(type) {
     // TM presence scale
     renderPresenceScale(state.currentVisit.data.tmPresence);
 
-    // Autocomplete on store
+    // Store dropdown + optional manual entry
+    setupStoreDropdown();
     setupStoreAutocomplete();
   }
 
@@ -1934,7 +1951,40 @@ function removeStoreEntry(idx) {
   autoSaveDraft();
 }
 
-/* ---------- Store autocomplete (store_visit only) ---------- */
+/* ---------- Store dropdown (store_visit only) ---------- */
+function handleStoreSelect(value) {
+  const manualWrap = document.getElementById("f_store_manual_wrap");
+  const storeInput = document.getElementById("f_store");
+  if (!state.currentVisit) return;
+  if (value === "RKA") {
+    // Show manual text field
+    if (manualWrap) manualWrap.classList.remove("hidden");
+    state.currentVisit.data.store = storeInput ? storeInput.value : "";
+  } else {
+    // Hide manual text field, use dropdown value directly
+    if (manualWrap) manualWrap.classList.add("hidden");
+    state.currentVisit.data.store = value;
+    autoSaveDraft();
+  }
+}
+
+function setupStoreDropdown() {
+  const sel = document.getElementById("f_store_select");
+  const manualWrap = document.getElementById("f_store_manual_wrap");
+  if (!sel) return;
+  const currentStore = state.currentVisit?.data?.store || "";
+  // Restore saved state: if store matches a known option, select it; otherwise show manual
+  const knownStores = ["Worldwide Golf Shops","Golf Galaxy","Dick's House of Sport","PGA Tour Superstore","Scheels - The Colony","Scheels - Chandler","2nd Swing - Talking Stick","2nd Swing - Dallas"];
+  if (knownStores.includes(currentStore)) {
+    sel.value = currentStore;
+    if (manualWrap) manualWrap.classList.add("hidden");
+  } else if (currentStore) {
+    sel.value = "RKA";
+    if (manualWrap) manualWrap.classList.remove("hidden");
+  }
+}
+
+
 function setupStoreAutocomplete() {
   const input = document.getElementById("f_store");
   const list = document.getElementById("storeAutocomplete");
@@ -1993,7 +2043,9 @@ async function handlePhotoUpload(event, sectionKey) {
 }
 
 async function compressImage(file) {
-  if (file.size < 500 * 1024) return file;
+  // Target ~100-150KB per photo. Smaller files = faster individual uploads
+  // over cell connections, and well under any per-call size limits.
+  if (file.size < 200 * 1024) return file;
   return new Promise((resolve, reject) => {
     const img = new Image();
     const reader = new FileReader();
@@ -2001,7 +2053,7 @@ async function compressImage(file) {
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
     img.onload = () => {
-      const maxDim = 1600;
+      const maxDim = 2048;
       let w = img.width, h = img.height;
       if (w > maxDim || h > maxDim) {
         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -2356,8 +2408,7 @@ async function renderReview(v) {
           ${storesList.length === 0 ? '<div class="review-value muted">None recorded</div>' :
             '<div class="review-tags">' + storesList.map(s => `<span class="review-tag">${escapeHtml(s.store)}${s.location ? " — " + escapeHtml(s.location) : ""}</span>`).join("") + '</div>'}
         </div>
-        ${reviewItem("Total Fittings / Conversations", d.totalFittings)}
-        ${reviewItem("Hours in Field", d.hoursInField)}
+        ${reviewItem("Total Stores Visited This Week", d.totalFittings)}
       </div>
       <div class="section">
         <h3 class="section-title">Wins of the Week</h3>
@@ -2366,9 +2417,9 @@ async function renderReview(v) {
         ${reviewItem("What Worked", d.productStoryDetails)}
       </div>
       <div class="section">
-        <h3 class="section-title">My Capability Check</h3>
+        <h3 class="section-title">Fitter &amp; Associate Capability Check</h3>
         ${renderRatingMap(d.ambassadorConfidence)}
-        ${reviewItem("Learning Focus", d.learningFocus)}
+        ${reviewItem("Where Are They Struggling Most", d.learningFocus)}
       </div>
       <div class="section">
         <h3 class="section-title">Field Intelligence</h3>
@@ -2511,7 +2562,16 @@ async function syncPendingVisits() {
       skipped++;
     } else {
       try {
-        const flowResponse = await syncOne(v, url);
+        const flowResponse = await syncOne(v, url, (phase, cur, total) => {
+          // Live progress callback from syncOne
+          if (phase === "photos") {
+            statusEl.textContent = `Report ${i + 1} of ${pending.length}`;
+            detailEl.textContent = `Uploading photo ${cur} of ${total}…`;
+          } else if (phase === "report") {
+            statusEl.textContent = `Report ${i + 1} of ${pending.length}`;
+            detailEl.textContent = "Saving report…";
+          }
+        });
         v.status = "synced";
         v.syncedAt = Date.now();
         v.error = null;
@@ -2542,31 +2602,87 @@ async function syncPendingVisits() {
   }, 400);
 }
 
-async function syncOne(v, url) {
-  const photoPayload = [];
-  // Counter per section so filenames are scannable in the SharePoint folder
+// Decoupled sync: upload photos one-by-one to the photo webhook FIRST,
+// then POST the (small, base64-free) report data to the report webhook.
+// This avoids the 120s synchronous timeout that killed large photo payloads.
+//
+// Resilience: each photo is uploaded independently. We mark a photo
+// `uploaded:true` on its in-memory record after a confirmed 200, and persist
+// that. On retry (e.g. after a dropped connection), already-uploaded photos
+// are skipped — only the stragglers re-send. The report row is created exactly
+// once, at the end, after every photo is confirmed.
+async function syncOne(v, url, onProgress) {
   const sectionCounters = {};
-  for (const p of (v.photos || [])) {
-    const rec = await getPhoto(p.id);
-    if (!rec) continue;
-    const b64 = await blobToBase64(rec.blob);
-    const section = p.section || "general";
-    sectionCounters[section] = (sectionCounters[section] || 0) + 1;
-    // Filename pattern: <section>_<n>.jpg — e.g. brand_presence_1.jpg, competitive_2.jpg
-    const safeSection = section.replace(/[^a-z0-9_-]/gi, "-");
-    photoPayload.push({
-      filename: `${safeSection}_${sectionCounters[section]}.jpg`,
-      caption: p.caption || "",
-      section: section,
-      sectionLabel: photoSectionLabel(v.type, section),
-      contentType: rec.blob.type || "image/jpeg",
-      sizeBytes: rec.blob.size,
-      data: b64
-    });
+  const photoWebhook = CONFIG.WEBHOOK_URL_PHOTO;
+
+  const photos = v.photos || [];
+
+  // PHASE 1 — upload photos individually (if any exist)
+  if (photos.length > 0) {
+    if (!photoWebhook) {
+      throw new Error("Photos attached but WEBHOOK_URL_PHOTO is not configured");
+    }
+
+    // Compute the report's folder path once — every photo for this report
+    // goes into the same folder. The folder name mirrors the report flow's
+    // own folder logic so photos and the eventual list item line up.
+    const folderName = buildPhotoFolderName(v);
+
+    for (let pi = 0; pi < photos.length; pi++) {
+      const p = photos[pi];
+      if (typeof onProgress === "function") onProgress("photos", pi + 1, photos.length);
+      const section = p.section || "general";
+      // Maintain per-section counter regardless of upload state so filenames
+      // stay stable and consistent across retries.
+      sectionCounters[section] = (sectionCounters[section] || 0) + 1;
+      const safeSection = section.replace(/[^a-z0-9_-]/gi, "-");
+      const filename = `${safeSection}_${sectionCounters[section]}.jpg`;
+
+      // Skip already-uploaded photos on retry
+      if (p.uploaded) continue;
+
+      const rec = await getPhoto(p.id);
+      if (!rec) {
+        // Photo blob is gone from IndexedDB — skip rather than fail the whole report
+        console.warn("Photo blob missing, skipping:", p.id);
+        p.uploaded = true; // treat as done so it doesn't block forever
+        continue;
+      }
+      const b64 = await blobToBase64(rec.blob);
+
+      const photoBody = {
+        schemaVersion: 3,
+        visitId: v.id,
+        visitType: v.type,
+        ambassadorName: v.ambassadorName,
+        ambassadorEmail: v.ambassador,
+        folderName: folderName,
+        filename: filename,
+        caption: p.caption || "",
+        section: section,
+        sectionLabel: photoSectionLabel(v.type, section),
+        contentType: rec.blob.type || "image/jpeg",
+        sizeBytes: rec.blob.size,
+        data: b64
+      };
+
+      const presp = await fetch(photoWebhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(photoBody)
+      });
+      if (!presp.ok) {
+        const text = await presp.text().catch(() => "");
+        throw new Error(`Photo ${pi + 1}/${photos.length} failed: HTTP ${presp.status}${text ? " — " + text.slice(0, 150) : ""}`);
+      }
+      // Mark uploaded and persist immediately so a later failure doesn't force re-upload
+      p.uploaded = true;
+      upsertVisit(v);
+    }
   }
 
-  // Build breakdown string for SharePoint column: "Brand Presence: 2 · Competitive Landscape: 1 · General: 0"
-  // Includes every section defined for this visit type (even zeros), in catalog order.
+  // PHASE 2 — send the report data (no base64; tiny + fast)
+  if (typeof onProgress === "function") onProgress("report");
   const breakdownParts = sectionsForType(v.type).map(s => {
     const count = (sectionCounters[s.key] || 0);
     return `${s.label}: ${count}`;
@@ -2574,16 +2690,16 @@ async function syncOne(v, url) {
   const photoSectionBreakdown = breakdownParts.join(" · ");
 
   const payload = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     visitType: v.type,
     visitId: v.id,
     ambassadorEmail: v.ambassador,
     ambassadorName: v.ambassadorName,
     submittedAt: new Date(v.completedAt || v.updatedAt || Date.now()).toISOString(),
     data: serializeDataForSync(v),
-    photos: photoPayload,
-    photoCount: photoPayload.length,
+    photoCount: photos.length,
     photoSectionBreakdown: photoSectionBreakdown,
+    photoFolderName: buildPhotoFolderName(v),
     appVersion: CONFIG.APP_VERSION
   };
 
@@ -2596,17 +2712,29 @@ async function syncOne(v, url) {
     const text = await resp.text().catch(() => "");
     throw new Error(`HTTP ${resp.status} ${resp.statusText}${text ? " — " + text.slice(0, 200) : ""}`);
   }
-  // Parse the flow's response so we can capture the SharePoint item URL.
-  // Flow is expected to return: { ok: true, itemId: <int>, itemUrl: <DispForm URL>, photoFolderUrl: <URL> }
-  // Defensive: tolerate non-JSON or missing fields — the row was still created if HTTP was 2xx.
   let parsed = null;
   try {
     const text = await resp.text();
     parsed = text ? JSON.parse(text) : null;
   } catch (err) {
-    console.warn("Sync response wasn't JSON — row likely still created. Parse error:", err);
+    console.warn("Report response wasn't JSON — row likely still created. Parse error:", err);
   }
   return parsed || {};
+}
+
+// Folder name for a report's photos. Mirrors the report flow's folder logic so
+// the photo folder and the list item's PhotoFolderURL point to the same place.
+// Pattern: <type>_<date>_<ambassador>_<id>  (no slashes — the flow prepends the path)
+function buildPhotoFolderName(v) {
+  const d = v.data || {};
+  const clean = s => String(s || "").trim().replace(/[^a-z0-9 _-]/gi, "").replace(/\s+/g, " ").trim();
+  if (v.type === "store_visit") {
+    return `${clean(v.ambassadorName)} - ${clean(d.store)} - ${d.date || ""}`;
+  }
+  if (v.type === "weekly_report") {
+    return `${clean(v.ambassadorName)} - Weekly Report - ${d.weekEnding || ""}`;
+  }
+  return `${clean(v.ambassadorName)} - Report - ${v.id}`;
 }
 
 function serializeDataForSync(v) {
@@ -2702,6 +2830,7 @@ async function refreshSettings() {
   };
   setStatus("webhookStatusStore", CONFIG.WEBHOOK_URL_STORE_VISIT);
   setStatus("webhookStatusWeekly", CONFIG.WEBHOOK_URL_WEEKLY_REPORT);
+  setStatus("webhookStatusPhoto", CONFIG.WEBHOOK_URL_PHOTO);
 
   const ver = document.getElementById("appVersionDisplay");
   if (ver) ver.textContent = CONFIG.APP_VERSION;
@@ -2711,7 +2840,8 @@ async function testAllConnections() {
   if (!state.online) { toast("You're offline", "warning"); return; }
   const tests = [
     { label: "Store Visit", url: CONFIG.WEBHOOK_URL_STORE_VISIT },
-    { label: "Weekly Report", url: CONFIG.WEBHOOK_URL_WEEKLY_REPORT }
+    { label: "Weekly Report", url: CONFIG.WEBHOOK_URL_WEEKLY_REPORT },
+    { label: "Photo Upload", url: CONFIG.WEBHOOK_URL_PHOTO }
   ];
   for (const t of tests) {
     if (!t.url) { toast(`${t.label}: no webhook`, "warning"); continue; }
@@ -2719,7 +2849,7 @@ async function testAllConnections() {
       const resp = await fetch(t.url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ test: true, schemaVersion: 2, visitType: t.label.toLowerCase().replace(" ", "_"), at: new Date().toISOString() })
+        body: JSON.stringify({ test: true, schemaVersion: 3, at: new Date().toISOString() })
       });
       if (resp.ok) toast(`${t.label}: OK`, "success");
       else toast(`${t.label}: HTTP ${resp.status}`, "error");
