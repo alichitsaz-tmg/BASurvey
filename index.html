@@ -1656,7 +1656,7 @@ function renderPhotoSectionHTML(sectionKey, opts) {
         <label class="add-photo-tile">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
           <span style="margin-top:6px">Add Photo</span>
-          <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event, '${escapeHtml(sectionKey)}')" />
+          <input type="file" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(event, '${escapeHtml(sectionKey)}')" />
         </label>
       </div>
       <p class="photo-hint">${escapeHtml(hint)}</p>
@@ -2111,7 +2111,7 @@ async function renderPhotoGrid() {
       <label class="add-photo-tile">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
         <span style="margin-top:6px">Add Photo</span>
-        <input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(event, '${sectionKey}')" />
+        <input type="file" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(event, '${sectionKey}')" />
       </label>
     `;
 
@@ -2727,14 +2727,14 @@ async function syncOne(v, url, onProgress) {
 // Pattern: <type>_<date>_<ambassador>_<id>  (no slashes — the flow prepends the path)
 function buildPhotoFolderName(v) {
   const d = v.data || {};
-  const clean = s => String(s || "").trim().replace(/[^a-z0-9 _-]/gi, "").replace(/\s+/g, " ").trim();
+  const dash = s => String(s || "").replace(/[^a-z0-9_-]/gi, "-");
   if (v.type === "store_visit") {
-    return `${clean(v.ambassadorName)} - ${clean(d.store)} - ${d.date || ""}`;
+    return `${dash(v.ambassadorName)}_Store-Visit_${dash(d.location)}_${(d.date || "")}`;
   }
   if (v.type === "weekly_report") {
-    return `${clean(v.ambassadorName)} - Weekly Report - ${d.weekEnding || ""}`;
+    return `${dash(v.ambassadorName)}_Weekly-Report_${(d.weekEnding || "")}`;
   }
-  return `${clean(v.ambassadorName)} - Report - ${v.id}`;
+  return `report_${v.id}`;
 }
 
 function serializeDataForSync(v) {
