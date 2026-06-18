@@ -911,7 +911,7 @@ const CONFIG = {
   // Each photo is POSTed individually (small, fast, retryable) BEFORE the report
   // data is sent. This avoids the 120s synchronous-response timeout that large
   // multi-photo payloads were hitting. Paste the photo flow's URL here.
-  WEBHOOK_URL_PHOTO: "",
+  WEBHOOK_URL_PHOTO: "https://default4f56e796915d4916a0f7066fbe562f.07.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6cfe20c834e3464e9cae968a5c9d3abb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1mWeXLJqKlQ8-XYvc50NGfLkuchk7vlNCyCWjY7rIF0",
 
   APP_VERSION: "2.4.0"
 };
@@ -2043,6 +2043,8 @@ async function handlePhotoUpload(event, sectionKey) {
 }
 
 async function compressImage(file) {
+  // Target ~100-150KB per photo. Smaller files = faster individual uploads
+  // over cell connections, and well under any per-call size limits.
   if (file.size < 200 * 1024) return file;
   return new Promise((resolve, reject) => {
     const img = new Image();
